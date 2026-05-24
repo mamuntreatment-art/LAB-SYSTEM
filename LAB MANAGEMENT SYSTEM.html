@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Management System | MD MAMUN MIAH</title>
+    <style>
+        :root {
+            --primary: #1a3a5f;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --light: #f4f7f6;
+            --dark-blue: #0d253f;
+        }
+
+.batch-modal-content{
+    width:95%;
+    max-width:900px;
+    max-height:90vh;
+    overflow-y:auto;
+    padding:20px;
+}
+
+
+
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: var(--light); color: #333; line-height: 1.5; }
+        
+        /* WEB HEADER */
+        header { background: var(--primary); color: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .header-main {
+            display: flex; justify-content: space-between; align-items: center; 
+            flex-wrap: wrap; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px; margin-bottom: 10px;
+        }
+        .developer-info {
+            background: var(--dark-blue); padding: 8px 15px; border-radius: 5px; font-size: 12px;
+            display: flex; gap: 15px; flex-wrap: wrap; border-left: 4px solid var(--accent);
+        }
+        .dev-tag { color: var(--accent); font-weight: bold; text-transform: uppercase; margin-right: 5px; }
+
+        /* PRINT HEADER */
+        #print-header { display: none; text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; color: black; }
+        #print-header h1 { margin: 0; font-size: 24px; }
+        #print-header p { margin: 2px 0; font-size: 14px; }
+
+        /* NAVIGATION */
+        .nav-tabs { display: flex; background: #fff; padding: 0 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 900; }
+        .tab-btn { padding: 15px 25px; cursor: pointer; border: none; background: none; font-weight: bold; color: #7f8c8d; border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+
+
+        /* CONTENT */
+        .content-section { display: none; padding: 20px; }
+        .content-section.active { display: block; }
+
+        /* TABLES */
+        .table-container { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #f8f9fa; color: #555; padding: 12px; border-bottom: 2px solid #dee2e6; text-align: left; font-size: 11px; text-transform: uppercase; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .batch-row { font-size: 11px; color: #666; background: #fcfcfc; border-left: 4px solid var(--info); }
+        
+        .status-pill { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        .warning { background: #fff4d1; color: #d35400; }
+        .ok { background: #d5f5e3; color: #27ae60; }
+
+        /* BUTTONS */
+        .btn { padding: 8px 14px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; font-size: 11px; text-transform: uppercase; display: inline-flex; align-items: center; }
+        .btn-add { background: var(--success); color: white; }
+        .btn-print { background: var(--accent); color: white; }
+        .btn-backup { background: #f39c12; color: white; }
+        .btn-import { background: var(--info); color: white; }
+        .btn-small { padding: 4px 8px; font-size: 9px; margin-right: 4px; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 100%; max-width: 550px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .full { grid-column: span 2; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+
+        #print-footer { display: none; position: fixed; bottom: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 10px; font-size: 10px; text-align: center; }
+
+
+
+@media print {
+
+    /* HIDE WEB ELEMENTS */
+    header,
+    .nav-tabs,
+    .btn,
+    .actions,
+    .search-bar,
+    .modal,
+    .batch-row,
+
+    /* HIDE INVENTORY & DEMAND BUTTONS */
+    .tab-btn,
+
+    /* HIDE SEARCH + FILTER AREA */
+    #searchInput,
+    #categoryFilter,
+    #subcategoryFilter,
+
+    /* HIDE FILTER CONTAINER */
+    #inventory > div:first-of-type,
+
+    /* HIDE DEMAND PAGE */
+    #procurement
+
+    {
+        display: none !important;
+    }
+
+    /* SHOW PRINT HEADER & FOOTER */
+    #print-header,
+    #print-footer {
+        display: block;
+    }
+
+    /* ONLY INVENTORY PAGE PRINT */
+    #inventory {
+        display: block !important;
+        padding: 0;
+    }
+
+    /* TABLE STYLE */
+    table {
+        width: 100%;
+        min-width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #000;
+    }
+
+    th,
+    td {
+        border: 1px solid #000;
+        padding: 5px;
+        color: black !important;
+        font-size: 11px;
+    }
+
+    /* HIDE CATEGORY COLUMN */
+    table th:nth-child(3),
+    table td:nth-child(3) {
+        display: none !important;
+    }
+
+    /* HIDE SUBCATEGORY COLUMN */
+    table th:nth-child(4),
+    table td:nth-child(4) {
+        display: none !important;
+    }
+
+    /* PAGE MARGIN */
+    @page {
+        margin: 1.5cm;
+    }
+}
+
+/* HIDE CATEGORY + SUBCATEGORY COLUMN */
+.hide-column{
+    display:none;
+}
+
+/* BATCH CARD */
+.batch-card{
+    border:1px solid #ddd;
+    border-left:5px solid #3498db;
+    border-radius:6px;
+    padding:15px;
+    margin-bottom:15px;
+    background:#fafafa;
+    font-size:14px;
+    line-height:1.8;
+}
+
+/* ALERT COLORS */
+.expired-row{
+    background:#ffdddd !important;
+    color:#c0392b;
+    font-weight:bold;
+}
+
+.expiring-row{
+    background:#fff3cd !important;
+    color:#d68910;
+    font-weight:bold;
+}
+
+.low-stock{
+    color:#e67e22;
+    font-weight:bold;
+}
+
+.out-stock{
+    color:#e74c3c;
+    font-weight:bold;
+}
+
+.good-stock{
+    color:#27ae60;
+    font-weight:bold;
+}
+
+/* REPORT BOX */
+.report-box{
+    background:white;
+    padding:15px;
+    border-radius:8px;
+    margin-bottom:20px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.report-title{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:10px;
+    color:#1a3a5f;
+}
+
+
+
+
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-main">
+        <div>
+            <h2 style="margin:0;">LAB MANAGEMENT SYSTEM</h2>
+            <div style="margin-top:8px; display: flex; align-items: center; gap: 10px;">
+                <label style="color: white; margin:0; font-size: 12px;">Inventory Date:</label>
+                <input type="date" id="inventoryDatePicker" onchange="updatePrintDate()" style="padding:4px;">
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-print" onclick="window.print()">🖨️ Print Report</button>
+            <button class="btn btn-add" style="margin-left:5px;" onclick="openModal('add')">➕ New Reagent</button>
+            <button class="btn btn-backup" style="margin-left:5px;" onclick="exportJSON()">💾 Backup</button>
+            <label class="btn btn-import" style="margin-left:5px; cursor:pointer;">
+                📂 Import <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+            </label>
+        </div>
+    </div>
+    <div class="developer-info">
+        <span><span class="dev-tag">Developer:</span> MD MAMUN MIAH</span>
+        <span><span class="dev-tag">Role:</span> Medical Technologist</span>
+        <span><span class="dev-tag">Mob:</span> 01854000045</span>
+    </div>
+</header>
+
+<div id="print-header">
+    <h1>Famous Specialized Hospital & Trauma Center</h1>
+    <p>Address: Ziku Tower, Comilla Road, Chandpur.</p>
+    <p><strong id="reportTypeHeader">Laboratory Inventory Report</strong></p>
+    <p>Inventory Date: <span id="displayPrintDate">____/____/________</span></p>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav-tabs">
+</div>
+
+<div class="report-box">
+    <div class="report-title">
+        📊 Stock & Expiry Reports
+    </div>
+    <div id="reportSummary"></div>
+</div>
+
+<!-- INVENTORY STOCK PAGE -->
+<div id="inventory" class="content-section active" style="display:block;">
+
+    <!-- INVENTORY PAGE BUTTON -->
+    <button class="tab-btn active"
+        onclick="openInventoryPage()">
+        📦 INVENTORY STOCK
+    </button>
+
+    <!-- DEMAND PAGE BUTTON -->
+    <button class="tab-btn"
+        onclick="openDemandPage()">
+        🛒 ALL DEMAND ITEMS
+    </button>
+
+</div>
+
+<!-- INVENTORY STOCK PAGE -->
+<div id="inventory" class="content-section active" style="display:block;">
+    <input type="text"
+       id="searchInput"
+       placeholder="Search reagents..."
+       onkeyup="renderAll()"
+       style="max-width:400px; margin-bottom:15px; padding:10px; border:1px solid #ddd; border-radius:4px;">
+  <!-- FILTER SECTION -->
+<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+
+    <!-- CATEGORY -->
+    <select id="categoryFilter"
+        onchange="renderAll()"
+        style="padding:10px; border:1px solid #ddd; border-radius:4px; min-width:220px;">
+
+        <option value="All Category">All Category</option>
+        <option value="Haematology">Haematology</option>
+        <option value="Biochemistry">Biochemistry</option>
+        <option value="Serology">Serology</option>
+        <option value="Immunology">Immunology</option>
+        <option value="Microbiology">Microbiology</option>
+
+    </select>
+
+    <!-- SUBCATEGORY -->
+    <select id="subcategoryFilter"
+        onchange="renderAll()"
+        style="padding:10px; border:1px solid #ddd; border-radius:4px; min-width:220px;">
+
+        <option value="All Subcategory">All Subcategory</option>
+        <option value="Chemical">Chemical</option>
+        <option value="Stationary">Stationary</option>
+        <option value="Consumables">Consumables</option>
+        <option value="Kid">Kid</option>
+        <option value="Solid Item">Solid Item</option>
+        <option value="Liquid Item">Liquid Item</option>
+
+    </select>
+
+</div>      
+
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Reagent Name</th>
+<th style="display:none;">Category</th>
+<th style="display:none;">Subcategory</th>
+                    <th>Opening Stock</th>
+                    <th>New Stock</th>
+                    <th>Total Stock</th>
+                    <th>Uses</th>
+                    <th>Present Stock</th>
+                    <th>Demand</th>
+                    <th>Stock Date</th>
+                    <th>Expired Date</th>
+                    <th class="actions">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="inventoryBody"></tbody>
+        </table>
+    </div>
+</div>
+<div id="procurement" class="content-section" style="display:none;">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>SI</th><th>Item Name</th><th>Present Stock</th><th>Demand Level</th><th>Supplier Name</th><th>Mobile</th><th>Manufacturer</th>
+                </tr>
+            </thead>
+            <tbody id="procurementBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="print-footer">
+    App Developer: MD MAMUN MIAH | Medical Technologist | Mob: 01854000045 | Email: md.mamun8@gmail.com
+</div>
+
+<div class="modal" id="entryModal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Reagent Details</h3>
+        <form id="reagentForm">
+            <input type="hidden" id="editIndex">
+            <div class="form-grid">
+                <div class="full"><label>Item Name</label><input type="text" id="name"></div>
+<!-- CATEGORY -->
+<div>
+    <label>Category</label>
+
+    <select id="category"
+        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+
+        <option value="Haematology">Haematology</option>
+        <option value="Biochemistry">Biochemistry</option>
+        <option value="Serology">Serology</option>
+        <option value="Immunology">Immunology</option>
+        <option value="Microbiology">Microbiology</option>
+
+    </select>
+</div>
+
+<!-- SUBCATEGORY -->
+<div>
+    <label>Subcategory</label>
+
+    <select id="subcategory"
+        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+
+        <option value="Chemical">Chemical</option>
+        <option value="Stationary">Stationary</option>
+        <option value="Consumables">Consumables</option>
+        <option value="Kid">Kid</option>
+        <option value="Solid Item">Solid Item</option>
+        <option value="Liquid Item">Liquid Item</option>
+
+    </select>
+</div>
+
+
+                <div><label>Quantity</label><input type="number" id="stockValue"></div>
+                <div><label>Cumulative Uses</label><input type="number" id="uses" value="0"></div>
+                <div><label>Demand Level</label><input type="number" id="demand" value="0"></div>
+                <div><label>Expiry Date</label><input type="date" id="expiry"></div>
+                <div class="full"><hr></div>
+                <div class="full"><label>Supplier</label><input type="text" id="supplier"></div>
+                <div><label>Mobile</label><input type="text" id="mobile"></div>
+                <div><label>Manufacturer</label><input type="text" id="manufacturer"></div>
+            </div>
+            <div style="margin-top:20px; text-align:right;">
+                <button type="button" class="btn" onclick="toggleModal(false)" style="background:#95a5a6; color:white;">Cancel</button>
+                <button type="submit" class="btn btn-add">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- BATCH MODAL -->
+<div class="modal" id="batchModal">
+
+    <div class="modal-content batch-modal-content">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+
+            <h3 id="batchTitle" style="margin:0;">
+                Batch Details
+            </h3>
+
+            <button class="btn"
+                onclick="closeBatchModal()"
+                style="background:#e74c3c; color:white;">
+                Close
+            </button>
+
+        </div>
+
+        <!-- BATCH DATA -->
+        <div id="batchDataContainer"></div>
+
+    </div>
+</div>
+
+
+<script>
+    let reagents = JSON.parse(localStorage.getItem('lab_demand_v11')) || [];
+    let currentMode = 'add';
+
+
+// SHOW ALL BATCH DETAILS INSIDE LARGE DIALOG BOX
+function showBatchData(index) {
+
+    const item = reagents[index];
+
+    const totalBatch = item.batches.length;
+
+    document.getElementById('batchTitle').innerHTML =
+        `Batch Details for ${item.name} (Total Batch : ${totalBatch})`;
+
+    let html = '';
+
+    // SHOW ALL BATCHES
+    item.batches.forEach((batch, i) => {
+
+        html += `
+        <div class="batch-card">
+
+            <h4 style="margin-top:0; color:#2980b9;">
+                Batch ${i + 1}
+            </h4>
+
+            <p>
+                <strong>Item Name :</strong>
+                ${item.name}
+            </p>
+
+            <p>
+                <strong>Quantity :</strong>
+                ${batch.qty || 0}
+            </p>
+
+            <p>
+                <strong>Stock Date :</strong>
+                ${batch.stockDate || '-'}
+            </p>
+
+            <p>
+                <strong>Expiry Date :</strong>
+                ${batch.expiry || '-'}
+            </p>
+
+        </div>
+        `;
+    });
+
+    document.getElementById('batchDataContainer').innerHTML = html;
+
+    // OPEN MODAL
+    document.getElementById('batchModal').classList.add('active');
+}
+
+// CLOSE MODAL
+function closeBatchModal() {
+
+    document.getElementById('batchModal').classList.remove('active');
+}
+
+    function updatePrintDate() {
+        const val = document.getElementById('inventoryDatePicker').value;
+        if(val) {
+            const [y, m, d] = val.split('-');
+            document.getElementById('displayPrintDate').innerText = `${d}/${m}/${y}`;
+        }
+    }
+
+    function switchTab(tabId, event) {
+        document.querySelectorAll('.content-section, .tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        document.getElementById('reportTypeHeader').innerText = tabId === 'inventory' ? 'Laboratory Inventory Report' : 'Procurement Requisition List (Demand Items)';
+        renderAll();
+    }
+
+
+// DATE DIFFERENCE
+function daysRemaining(expiryDate){
+
+    if(!expiryDate) return null;
+
+    const today = new Date();
+
+    const exp = new Date(expiryDate);
+
+    const diff = exp - today;
+
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+// REPORT SUMMARY (CATEGORY + SUBCATEGORY FILTERED)
+function renderReports(){
+
+    const categoryFilter =
+        document.getElementById('categoryFilter').value;
+
+    const subcategoryFilter =
+        document.getElementById('subcategoryFilter').value;
+
+    let expiredCount = 0;
+    let expiringCount = 0;
+    let lowStockCount = 0;
+    let outStockCount = 0;
+    let totalItems = 0;
+
+    reagents.forEach(item=>{
+
+        // CATEGORY FILTER
+        const matchCategory =
+            categoryFilter === 'All Category' ||
+            item.category === categoryFilter;
+
+        // SUBCATEGORY FILTER
+        const matchSubcategory =
+            subcategoryFilter === 'All Subcategory' ||
+            item.subcategory === subcategoryFilter;
+
+        // SKIP NON MATCH
+        if(!matchCategory || !matchSubcategory){
+            return;
+        }
+
+        totalItems++;
+
+        const opening =
+            Number(item.batches[0]?.qty || 0);
+
+        const newStock =
+            item.batches
+            .slice(1)
+            .reduce((s,b)=> s + Number(b.qty || 0),0);
+
+        const total = opening + newStock;
+
+        const uses = Number(item.uses || 0);
+
+        const present = total - uses;
+
+        const demand = Number(item.demand || 0);
+
+        // OUT STOCK
+        if(present <= 0){
+            outStockCount++;
+        }
+
+        // LOW STOCK
+        else if(present <= demand){
+            lowStockCount++;
+        }
+
+        // EXPIRY CHECK
+        item.batches.forEach(batch=>{
+
+            const days = daysRemaining(batch.expiry);
+
+            if(days !== null){
+
+                if(days < 0){
+                    expiredCount++;
+                }
+                else if(days <= 30){
+                    expiringCount++;
+                }
+            }
+
+        });
+
+    });
+
+    document.getElementById('reportSummary').innerHTML = `
+
+    <div style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:15px;
+        align-items:center;
+    ">
+
+        <div class="status-pill"
+            style="background:#d6eaf8; color:#1b4f72;">
+            📦 Total Items : ${totalItems}
+        </div>
+
+        <div class="status-pill"
+            style="background:#ffdddd; color:#c0392b;">
+            ❌ Expired Batches : ${expiredCount}
+        </div>
+
+        <div class="status-pill"
+            style="background:#fff3cd; color:#d68910;">
+            ⚠ Expiring ≤30 Days : ${expiringCount}
+        </div>
+
+        <div class="status-pill"
+            style="background:#fdebd0; color:#d35400;">
+            📉 Low Stock : ${lowStockCount}
+        </div>
+
+        <div class="status-pill"
+            style="background:#fadbd8; color:#922b21;">
+            🚫 Out Stock : ${outStockCount}
+        </div>
+
+        <div class="status-pill"
+            style="background:#e8f8f5; color:#117864;">
+            🧪 Category :
+            ${categoryFilter}
+        </div>
+
+        <div class="status-pill"
+            style="background:#f4ecf7; color:#6c3483;">
+            📂 Subcategory :
+            ${subcategoryFilter}
+        </div>
+
+    </div>
+
+    `;
+}
+
+function renderAll() {
+    const iBody = document.getElementById('inventoryBody');
+    const pBody = document.getElementById('procurementBody');
+
+    const search = document.getElementById('searchInput').value.toLowerCase();
+const categoryFilter =
+document.getElementById('categoryFilter').value;
+
+const subcategoryFilter =
+document.getElementById('subcategoryFilter').value;
+
+    iBody.innerHTML = '';
+    pBody.innerHTML = '';
+
+    let pCount = 1;
+
+    reagents.forEach((item, rIdx) => {
+
+        const opening = Number(item.batches[0]?.qty || 0);
+
+        const newStock = item.batches
+            .slice(1)
+            .reduce((s, b) => s + Number(b.qty || 0), 0);
+
+        const total = opening + newStock;
+
+        const uses = Number(item.uses || 0);
+
+        const present = total - uses;
+
+        const demand = Number(item.demand || 0);
+
+const latestExp =
+item.batches[item.batches.length - 1]?.expiry || '-';
+
+const expDays = daysRemaining(latestExp);
+
+        const stockDate =
+            item.batches[item.batches.length - 1]?.stockDate || '-';
+
+        // INVENTORY TABLE
+        const matchSearch =
+item.name.toLowerCase().includes(search);
+
+const matchCategory =
+categoryFilter === 'All Category' ||
+item.category === categoryFilter;
+
+const matchSubcategory =
+subcategoryFilter === 'All Subcategory' ||
+item.subcategory === subcategoryFilter;
+
+if (
+    matchSearch &&
+    matchCategory &&
+    matchSubcategory
+) {
+
+iBody.innerHTML += `
+<tr>
+    <td>#${rIdx + 1}</td>
+
+    <td>
+        <strong>${item.name}</strong>
+    </td>
+
+    <!-- HIDDEN -->
+    <td class="hide-column">
+        ${item.category || '-'}
+    </td>
+
+    <!-- HIDDEN -->
+    <td class="hide-column">
+        ${item.subcategory || '-'}
+    </td>
+
+    <td>${opening}</td>
+
+    <td>${newStock}</td>
+
+    <td>${total}</td>
+
+    <td>${uses}</td>
+
+    <td class="
+    ${present <= 0 ? 'out-stock' : ''}
+    ${present > 0 && present <= demand ? 'low-stock' : ''}
+    ${present > demand ? 'good-stock' : ''}
+    ">
+
+    ${present}
+
+    ${
+    present <= 0
+    ? ' (OUT)'
+    : present <= demand
+    ? ' (LOW)'
+    : ''
+    }
+
+    </td>
+
+    <td>${demand}</td>
+
+    <td>${stockDate}</td>
+
+    <td class="
+    ${expDays < 0 ? 'expired-row' : ''} 
+    ${expDays >= 0 && expDays <= 30 ? 'expiring-row' : ''}
+    ">
+
+    ${latestExp}
+
+    ${
+    expDays < 0
+    ? ' (Expired)'
+    : expDays <= 30
+    ? ` (${expDays}d left)`
+    : ''
+    }
+
+    </td>
+
+    <td class="actions">
+
+        <button class="btn btn-small"
+            style="background:#9b59b6; color:white;"
+            onclick="openModal('newStock', ${rIdx})">
+            NewStock
+        </button>
+
+        <button class="btn btn-small"
+            style="background:#2980b9; color:white;"
+            onclick="openModal('edit', ${rIdx})">
+            Edit
+        </button>
+
+        <button class="btn btn-small"
+            style="background:#16a085; color:white;"
+            onclick="showBatchData(${rIdx})">
+            Batch
+        </button>
+
+        <button class="btn btn-small"
+            style="background:#e74c3c; color:white;"
+            onclick="deleteReagent(${rIdx})">
+            Delete
+        </button>
+
+        <button class="btn btn-small"
+            style="background:#8e44ad; color:white;"
+            onclick="openBatchEdit(${rIdx})">
+            BatchEdit
+        </button>
+
+    </td>
+</tr>
+`;
+
+        }
+
+        // PROCUREMENT TABLE
+        if (demand > 0) {
+
+            pBody.innerHTML += `
+            <tr>
+                <td>${pCount++}</td>
+
+                <td><strong>${item.name}</strong></td>
+
+                <td>${present}</td>
+
+                <td>${demand}</td>
+
+                <td>${item.supplier || '-'}</td>
+
+                <td>${item.mobile || '-'}</td>
+
+                <td>${item.manufacturer || '-'}</td>
+            </tr>
+            `;
+        }
+    });
+renderReports();
+}
+
+    function openModal(mode, rIdx) {
+        currentMode = mode;
+        const f = document.getElementById('reagentForm'); f.reset();
+        document.getElementById('editIndex').value = rIdx;
+        const setDisp = (ids, d) => {
+    ids.forEach(id => {
+        document.getElementById(id).parentElement.style.display = d;
+    });
+};
+
+        if (mode === 'edit') {
+            const itm = reagents[rIdx];
+            document.getElementById('name').value = itm.name;
+            document.getElementById('uses').value = itm.uses;
+            document.getElementById('demand').value = itm.demand;
+            document.getElementById('supplier').value = itm.supplier;
+            document.getElementById('mobile').value = itm.mobile;
+            document.getElementById('manufacturer').value = itm.manufacturer;
+document.getElementById('category').value =
+itm.category || 'Haematology';
+
+document.getElementById('subcategory').value =
+itm.subcategory || 'Chemical';
+        }
+        document.getElementById('entryModal').classList.add('active');
+    }
+
+    function toggleModal(s) { document.getElementById('entryModal').classList.toggle('active', s); }
+
+// SAVE STOCK DATE WHEN ADDING STOCK
+document.getElementById('reagentForm').addEventListener('submit', (e) => {
+
+    e.preventDefault();
+
+    const rIdx = document.getElementById('editIndex').value;
+
+    const bData = {
+        qty: document.getElementById('stockValue').value || 0,
+        expiry: document.getElementById('expiry').value,
+        stockDate: new Date().toLocaleDateString()
+    };
+
+    if (currentMode === 'add') {
+
+reagents.push({
+    name: document.getElementById('name').value,
+
+    category:
+    document.getElementById('category').value,
+
+    subcategory:
+    document.getElementById('subcategory').value,
+
+    uses: document.getElementById('uses').value || 0,
+
+    demand: document.getElementById('demand').value || 0,
+
+    supplier: document.getElementById('supplier').value,
+
+    mobile: document.getElementById('mobile').value,
+
+    manufacturer: document.getElementById('manufacturer').value,
+
+    batches: [bData]
+});
+
+    } else if (currentMode === 'newStock') {
+
+        reagents[rIdx].batches.push(bData);
+
+    } else if (currentMode === 'edit') {
+
+        Object.assign(reagents[rIdx], {
+
+    category:
+    document.getElementById('category').value,
+
+    subcategory:
+    document.getElementById('subcategory').value,
+            name: document.getElementById('name').value,
+            uses: document.getElementById('uses').value,
+            demand: document.getElementById('demand').value,
+            supplier: document.getElementById('supplier').value,
+            mobile: document.getElementById('mobile').value,
+            manufacturer: document.getElementById('manufacturer').value
+        });
+    }
+
+    saveData();
+
+    toggleModal(false);
+});
+
+    function deleteReagent(i) { if(confirm('Delete item?')) { reagents.splice(i,1); saveData(); }}
+    function deleteBatch(ri, bi) { if(reagents[ri].batches.length > 1 && confirm('Delete batch?')) { reagents[ri].batches.splice(bi,1); saveData(); }}
+    function saveData() { localStorage.setItem('lab_demand_v11', JSON.stringify(reagents)); renderAll(); }
+    
+async function exportJSON() {
+
+    // SAVE ALL LOCAL STORAGE
+    const allLocalData = {};
+
+    for (let i = 0; i < localStorage.length; i++) {
+
+        const key = localStorage.key(i);
+
+        allLocalData[key] = localStorage.getItem(key);
+    }
+
+    // BACKUP OBJECT
+    const backupData = {
+
+        appName: "Lab Management System",
+
+        backupDate: new Date().toISOString(),
+
+        totalStorageItems: localStorage.length,
+
+        localStorageData: allLocalData
+    };
+
+    // JSON STRING
+    const jsonData = JSON.stringify(
+        backupData,
+        null,
+        2
+    );
+
+    // FILE NAME
+    const date = new Date().toISOString().split('T')[0];
+
+    const fileName =
+        `Full_LocalStorage_Backup_${date}.json`;
+
+    // MODERN SAVE AS DIALOG
+    if (window.showSaveFilePicker) {
+
+        try {
+
+            const handle =
+                await window.showSaveFilePicker({
+
+                suggestedName: fileName,
+
+                types: [{
+                    description: 'JSON Files',
+                    accept: {
+                        'application/json': ['.json']
+                    }
+                }]
+            });
+
+            const writable =
+                await handle.createWritable();
+
+            await writable.write(jsonData);
+
+            await writable.close();
+
+            alert("Backup saved successfully");
+
+        } catch (err) {
+
+            console.log("Save cancelled");
+        }
+
+    } else {
+
+        // FALLBACK FOR OLD BROWSERS
+        const blob = new Blob(
+            [jsonData],
+            { type: 'application/json' }
+        );
+
+        const a = document.createElement('a');
+
+        a.href = URL.createObjectURL(blob);
+
+        a.download = fileName;
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(a.href);
+    }
+}
+function importJSON(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        try {
+
+            const backup = JSON.parse(e.target.result);
+
+            // VALIDATION
+            if (!backup.localStorageData) {
+
+                alert("Invalid backup file");
+
+                return;
+            }
+
+            // RESTORE ALL LOCAL STORAGE
+            Object.keys(backup.localStorageData).forEach(key => {
+
+                localStorage.setItem(
+                    key,
+                    backup.localStorageData[key]
+                );
+            });
+
+            // RELOAD DATA
+            reagents = JSON.parse(
+                localStorage.getItem('lab_demand_v11')
+            ) || [];
+
+            renderAll();
+
+            renderReports();
+
+            alert("Full backup restored successfully");
+
+        } catch (err) {
+
+            alert("Invalid JSON file");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+
+renderAll();
+renderReports();
+
+</script>
+
+
+
+
+<!-- =========================
+BATCH EDIT BUTTON + DIALOG
+========================= -->
+
+<script>
+
+// OPEN BATCH EDIT DIALOG
+function openBatchEdit(index){
+
+    const item = reagents[index];
+
+    let html = `
+
+    <div style="margin-bottom:15px;">
+
+        <h3 style="margin:0; color:#1a3a5f;">
+            Batch Edit : ${item.name}
+        </h3>
+
+    </div>
+
+    `;
+
+    item.batches.forEach((batch, i)=>{
+
+        html += `
+
+        <div class="batch-card">
+
+            <h4 style="margin-top:0; color:#2980b9;">
+                Batch ${i + 1}
+            </h4>
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Quantity</label>
+
+                    <input type="number"
+                        id="batchQty_${i}"
+                        value="${batch.qty || 0}">
+                </div>
+
+                <div>
+                    <label>Expiry Date</label>
+
+                    <input type="date"
+                        id="batchExpiry_${i}"
+                        value="${batch.expiry || ''}">
+                </div>
+
+                <div class="full">
+                    <label>Stock Date</label>
+
+                    <input type="text"
+                        id="batchStock_${i}"
+                        value="${batch.stockDate || ''}">
+                </div>
+
+            </div>
+
+        </div>
+
+        `;
+    });
+
+    html += `
+
+    <div style="text-align:right; margin-top:20px;">
+
+        <button class="btn"
+            onclick="closeBatchEditModal()"
+            style="background:#95a5a6; color:white;">
+
+            Cancel
+        </button>
+
+        <button class="btn btn-add"
+            onclick="saveBatchEdit(${index})">
+
+            Save Changes
+        </button>
+
+    </div>
+
+    `;
+
+    // CREATE DIALOG IF NOT EXIST
+    if(!document.getElementById('batchEditModal')){
+
+        const modal = document.createElement('div');
+
+        modal.id = 'batchEditModal';
+
+        modal.className = 'modal';
+
+        modal.innerHTML = `
+
+        <div class="modal-content batch-modal-content">
+
+            <div id="batchEditContainer"></div>
+
+        </div>
+
+        `;
+
+        document.body.appendChild(modal);
+    }
+
+    document.getElementById('batchEditContainer').innerHTML = html;
+
+    document.getElementById('batchEditModal')
+        .classList.add('active');
+}
+
+// CLOSE BATCH EDIT DIALOG
+function closeBatchEditModal(){
+
+    document.getElementById('batchEditModal')
+        .classList.remove('active');
+}
+
+// SAVE BATCH EDIT
+function saveBatchEdit(index){
+
+    const item = reagents[index];
+
+    item.batches.forEach((batch, i)=>{
+
+        batch.qty =
+            document.getElementById(`batchQty_${i}`).value;
+
+        batch.expiry =
+            document.getElementById(`batchExpiry_${i}`).value;
+
+        batch.stockDate =
+            document.getElementById(`batchStock_${i}`).value;
+    });
+
+    saveData();
+
+    closeBatchEditModal();
+
+    alert('Batch data updated successfully');
+}
+
+</script>
+
+<script>
+
+function openInventoryPage() {
+
+    // CURRENT PAGE = INVENTORY
+    document.getElementById('inventory').style.display = 'block';
+
+    // HIDE PROCUREMENT
+    document.getElementById('procurement').style.display = 'none';
+
+    // REPORT TITLE
+    document.getElementById('reportTypeHeader').innerText =
+        'Laboratory Inventory Report';
+
+    renderAll();
+}
+
+// 1. Add this function to handle the Procurement Date formatting
+function updateProcurementDate() {
+    const val = document.getElementById('procurementDatePicker').value;
+    if(val) {
+        const [y, m, d] = val.split('-');
+        // Stores formatted date in a global or accessible variable for the print window
+        window.formattedProcurementDate = `${d} ${m} ${y}`;
+    }
+}
+
+// 2. Updated openDemandPage function to include the formatted date
+function openDemandPage() {
+    // Get the date from the picker, default to placeholders if empty
+    const procDate = window.formattedProcurementDate || "dd mm yyyy";
+    
+    const demandWindow = window.open('', '_blank');
+    const demandTable = document.getElementById('procurementBody').parentElement.outerHTML;
+
+    demandWindow.document.write(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ALL DEMAND ITEMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            color: #000;
+        }
+
+        /* ---- PRINT HEADER ---- */
+        .print-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .print-header h1 {
+            margin: 0 0 4px 0;
+            font-size: 22px;
+        }
+        .print-header p {
+            margin: 3px 0;
+            font-size: 13px;
+        }
+        .print-header .report-label {
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        /* ---- DATE ROW ---- */
+        .date-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .date-row label {
+            white-space: nowrap;
+        }
+
+        /* DATE INPUT — visible on screen, hidden on print */
+        #procurementDateInput {
+            padding: 5px 8px;
+            font-size: 14px;
+            border: 1px solid #999;
+            border-radius: 4px;
+        }
+
+        /* DATE TEXT — hidden on screen, visible on print */
+        #procurementDateText {
+            display: none;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* ---- TABLE ---- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background: #dcdcdc;
+            color: #000;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        /* ---- PRINT BUTTON ---- */
+        .print-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* ---- FOOTER ---- */
+        .footer {
+            margin-top: 40px;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* ==================== PRINT RULES ==================== */
+        @media print {
+
+            /* HIDE: button + date input on print */
+            .print-btn,
+            #procurementDateInput {
+                display: none !important;
+            }
+
+            /* SHOW: formatted date text on print */
+            #procurementDateText {
+                display: inline !important;
+            }
+
+            body { padding: 0; }
+
+            .footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                background: #fff;
+            }
+
+            @page { margin: 1.5cm; }
+        }
+    </style>
+
+    </head>
+    <body>
+           <!-- ===== PRINT HEADER ===== -->
+    <div class="print-header">
+        <h1>Famous Specialized Hospital &amp; Trauma Center</h1>
+        <p>Address: Ziku Tower, Comilla Road, Chandpur.</p>
+        <p class="report-label">ALL PROCUREMENT DEMAND ITEMS</p>
+
+        <!-- DATE ROW -->
+        <div class="date-row">
+            <label>PROCUREMENT Date :</label>
+
+            <!-- SCREEN: date picker -->
+            <input
+                type="date"
+                id="procurementDateInput"
+                onchange="updateProcurementDate()"
+            >
+
+            <!-- PRINT: formatted text (dd / mm / yyyy) -->
+            <span id="procurementDateText">____&nbsp;/&nbsp;____&nbsp;/&nbsp;________</span>
+        </div>
+    </div>
+
+    <!-- PRINT BUTTON -->
+    <button class="print-btn" onclick="window.print()">Print Report</button>
+
+    <!-- DEMAND TABLE -->
+    ${demandTable}
+
+    <!-- FOOTER -->
+    <div class="footer">
+        App Developer: MD MAMUN MIAH |
+        Medical Technologist |
+        Mob: 01854000045 |
+        Email: md.mamun8@gmail.com
+    </div>
+
+    <script>
+        /* 
+         * UPGRADE: When the user picks a date, format it as DD / MM / YYYY
+         * and store it in the #procurementDateText span.
+         * On print, the input hides and the formatted text span shows.
+         */
+        function updateProcurementDate() {
+            const val = document.getElementById('procurementDateInput').value;
+            const textEl = document.getElementById('procurementDateText');
+
+            if (val) {
+                const [y, m, d] = val.split('-');
+                // Format: DD / MM / YYYY
+                textEl.innerText = d + ' / ' + m + ' / ' + y;
+            } else {
+                textEl.innerHTML = '____ / ____ / ________';
+            }
+        }
+    <\/script>
+
+</body>
+</html>
+        `);
+
+        demandWindow.document.close();
+    }
+</script>
+
+
+</body>
+</html>

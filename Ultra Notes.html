@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra Notes</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    font-family:system-ui;
+    background:#0f172a;
+    color:white;
+    padding:20px;
+}
+
+.app{max-width:1200px;margin:auto}
+
+h1{margin-bottom:15px}
+
+.topbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+button,input{
+    border:none;
+    outline:none;
+    border-radius:10px;
+}
+
+button{
+    padding:10px 14px;
+    cursor:pointer;
+    background:#2563eb;
+    color:white;
+    font-weight:600;
+}
+
+button:hover{opacity:.9}
+
+#search{
+    flex:1;
+    min-width:200px;
+    padding:10px;
+    background:#1e293b;
+    color:white;
+}
+
+.notes{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+    gap:15px;
+}
+
+.note{
+    background:#1e293b;
+    padding:14px;
+    border-radius:14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.note-title{
+    padding:10px;
+    background:#334155;
+    color:white;
+    font-weight:700;
+    border-radius:8px;
+}
+
+textarea{
+    min-height:180px;
+    padding:10px;
+    background:#0f172a;
+    color:white;
+    border-radius:8px;
+}
+
+.footer{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    font-size:12px;
+    color:#94a3b8;
+}
+
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+
+.pin{color:#facc15}
+
+.status{
+    font-size:13px;
+    color:#94a3b8;
+    margin-bottom:10px;
+}
+
+.saved{
+    color:#22c55e;
+}
+
+.dirty{
+    color:#facc15;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>📝 Ultra Notes</h1>
+
+<div class="topbar">
+
+    <button onclick="createNote()">+ New</button>
+
+    <button onclick="manualSave()" id="saveBtn">💾 Save</button>
+
+    <button onclick="backupNotes()">Backup</button>
+
+    <button onclick="document.getElementById('file').click()">Import</button>
+
+    <input type="file" id="file" accept=".json" hidden>
+
+    <input id="search" placeholder="Search notes...">
+
+</div>
+
+<div class="status" id="status">Ready</div>
+
+<div class="notes" id="notes"></div>
+
+</div>
+
+<script>
+
+let notes =
+JSON.parse(localStorage.getItem("ultra-notes")) || [];
+
+let isDirty = false;
+
+const notesEl =
+document.getElementById("notes");
+
+const searchEl =
+document.getElementById("search");
+
+const statusEl =
+document.getElementById("status");
+
+const fileInput =
+document.getElementById("file");
+
+const saveBtn =
+document.getElementById("saveBtn");
+
+function setStatus(text, type=""){
+    statusEl.textContent = text;
+    statusEl.className = "status " + type;
+}
+
+function markDirty(){
+    isDirty = true;
+    setStatus("Unsaved changes...", "dirty");
+}
+
+function save(){
+
+    localStorage.setItem(
+        "ultra-notes",
+        JSON.stringify(notes)
+    );
+
+    isDirty = false;
+
+    setStatus("Saved ✔", "saved");
+}
+
+function manualSave(){
+    save();
+}
+
+function createNote(){
+    notes.unshift({
+        id:Date.now(),
+        title:"",
+        text:"",
+        favorite:false,
+        pinned:false,
+        updated:new Date().toLocaleString()
+    });
+
+    markDirty();
+    render();
+}
+
+function deleteNote(id){
+    notes = notes.filter(n=>n.id!==id);
+    markDirty();
+    render();
+}
+
+function togglePin(id){
+    notes = notes.map(n=>{
+        if(n.id===id) n.pinned=!n.pinned;
+        return n;
+    });
+    markDirty();
+    render();
+}
+
+function toggleFav(id){
+    notes = notes.map(n=>{
+        if(n.id===id) n.favorite=!n.favorite;
+        return n;
+    });
+    markDirty();
+    render();
+}
+
+function backupNotes(){
+    const blob = new Blob(
+        [JSON.stringify(notes,null,2)],
+        {type:"application/json"}
+    );
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "notes-backup.json";
+    a.click();
+}
+
+function importNotes(file){
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+
+        try{
+
+            const data =
+            JSON.parse(e.target.result);
+
+            if(!Array.isArray(data)){
+                alert("Invalid file");
+                return;
+            }
+
+            if(confirm("Replace notes?")){
+                notes = data;
+            }else{
+                notes = [...data, ...notes];
+            }
+
+            markDirty();
+            render();
+
+        }catch{
+            alert("Invalid JSON");
+        }
+
+    };
+
+    reader.readAsText(file);
+}
+
+fileInput.onchange = e=>{
+    importNotes(e.target.files[0]);
+};
+
+function render(){
+
+    const key =
+    searchEl.value.toLowerCase();
+
+    notesEl.innerHTML = "";
+
+    let list = notes.filter(n =>
+        (n.title||"").toLowerCase().includes(key) ||
+        (n.text||"").toLowerCase().includes(key)
+    );
+
+    list.sort((a,b)=>b.pinned - a.pinned);
+
+    if(list.length===0){
+        notesEl.innerHTML = "<div>No notes</div>";
+        return;
+    }
+
+    list.forEach(n=>{
+
+        const div = document.createElement("div");
+        div.className="note";
+
+        div.innerHTML=`
+            ${n.pinned?"<div class='pin'>📌 Pinned</div>":""}
+
+            <input class="note-title"
+                value="${n.title||""}"
+                placeholder="Title">
+
+            <textarea>${n.text||""}</textarea>
+
+            <div class="footer">
+
+                <span>${n.updated}</span>
+
+                <div class="actions">
+
+                    <button onclick="togglePin(${n.id})">
+                        Pin
+                    </button>
+
+                    <button onclick="toggleFav(${n.id})">
+                        Fav
+                    </button>
+
+                    <button onclick="deleteNote(${n.id})">
+                        Del
+                    </button>
+
+                </div>
+
+            </div>
+        `;
+
+        const title = div.querySelector(".note-title");
+        const text = div.querySelector("textarea");
+
+        title.oninput = () => {
+            n.title = title.value;
+            n.updated = new Date().toLocaleString();
+            markDirty();
+        };
+
+        text.oninput = () => {
+            n.text = text.value;
+            n.updated = new Date().toLocaleString();
+            markDirty();
+        };
+
+        notesEl.appendChild(div);
+
+    });
+}
+
+searchEl.oninput = render;
+
+document.addEventListener("keydown", e=>{
+
+    if(e.ctrlKey && e.key==="n"){
+        e.preventDefault();
+        createNote();
+    }
+
+    if(e.ctrlKey && e.key==="s"){
+        e.preventDefault();
+        save();
+    }
+});
+
+render();
+
+</script>
+
+</body>
+</html>

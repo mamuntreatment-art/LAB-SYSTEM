@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratory Inventory Report</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+  }
+
+  /* Developer info bar */
+  .dev-bar {
+    background: #122842;
+    color: #e6edf5;
+    font-size: 12.5px;
+    padding: 6px 14px;
+    text-align: center;
+    line-height: 1.4;
+    border-bottom: 1px solid #0b1a2c;
+  }
+  .dev-bar strong { color: #ffd980; }
+  .dev-bar span { margin: 0 6px; opacity: 0.85; }
+  .dev-bar a { color: #8ecbff; text-decoration: none; }
+  .dev-bar a:hover { text-decoration: underline; }
+
+  header {
+    background: #1e3a5f;
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 { margin: 0; font-size: 20px; }
+  header .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button, .btn {
+    cursor: pointer;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    background: #2a6ebb;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  button:hover, .btn:hover { opacity: 0.9; }
+  button.secondary { background: #6c757d; }
+  button.success  { background: #28a745; }
+  button.warning  { background: #e0a800; color: #222; }
+  button.danger   { background: #dc3545; }
+  button.ghost    { background: transparent; color: #fff; border: 1px solid #ffffff88; }
+
+  main { padding: 16px; max-width: 1500px; margin: 0 auto; }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    background: #fff;
+    padding: 12px 14px;
+    border-radius: 6px;
+    border-left: 4px solid #2a6ebb;
+    box-shadow: 0 1px 2px #0001;
+  }
+  .stat.low    { border-left-color: #e0a800; }
+  .stat.exp    { border-left-color: #dc3545; }
+  .stat.soon   { border-left-color: #fd7e14; }
+  .stat.value  { border-left-color: #28a745; }
+  .stat .label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: .5px; }
+  .stat .num   { font-size: 22px; font-weight: 600; margin-top: 2px; }
+
+  /* Toolbar */
+  .toolbar {
+    background: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 2px #0001;
+  }
+  .toolbar input, .toolbar select {
+    padding: 7px 9px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .toolbar input[type="search"] { min-width: 220px; flex: 1; }
+  .toolbar .spacer { flex: 1; }
+  .toolbar label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: #555;
+  }
+
+  /* Table */
+  .table-wrap {
+    background: #fff;
+    border-radius: 6px;
+    overflow-x: auto;
+    box-shadow: 0 1px 2px #0001;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { background: #f0f2f5; font-weight: 600; user-select: none; white-space: nowrap; }
+  tr.item-start td { border-top: 2px solid #d8dde3; }
+  tr.item-continuation td { border-top: 1px dashed #e8eaec; }
+  tr:hover td { background: #fafbfc; }
+  tr.row-expired td { background: #fde2e2; }
+  tr.row-expired:hover td { background: #fbcfcf; }
+  tr.row-soon    td { background: #ffe9d6; }
+  tr.row-soon:hover td { background: #ffd9b8; }
+  tr.row-low     td { background: #fff8e1; }
+  tr.row-low:hover td { background: #fff2c4; }
+
+  .ditto { color: #999; font-style: italic; text-align: center; }
+  .item-name { font-weight: 600; }
+  .item-cat  { color: #888; font-size: 11px; font-weight: 400; }
+
+  .batch {
+    white-space: nowrap;
+  }
+  .batch .qty { font-weight: 600; }
+  .batch .exp { color: #555; font-size: 12px; margin-left: 3px; }
+  .batch.dash { color: #bbb; font-style: italic; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e7eef7;
+    color: #1e3a5f;
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+  .badge.low     { background: #fff3cd; color: #856404; }
+  .badge.expired { background: #f8d7da; color: #721c24; }
+  .badge.soon    { background: #ffe5d0; color: #884808; }
+  .badge.ok      { background: #d4edda; color: #155724; }
+
+  .row-actions { white-space: nowrap; }
+  .row-actions button { padding: 4px 8px; font-size: 11.5px; margin-right: 3px; margin-bottom: 2px; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: #0008;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 18px;
+  }
+  .modal h2 { margin: 0 0 12px; font-size: 18px; }
+  .modal .sub { color: #666; font-size: 13px; margin-top: -6px; margin-bottom: 10px; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .form-grid .full { grid-column: 1 / -1; }
+  .form-grid label { display: flex; flex-direction: column; font-size: 12px; color: #555; gap: 3px; }
+  .form-grid input, .form-grid select, .form-grid textarea {
+    padding: 7px 9px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .form-grid textarea { min-height: 60px; resize: vertical; }
+  .modal-actions { margin-top: 14px; display: flex; justify-content: flex-end; gap: 8px; }
+
+  /* Reports view */
+  .report-section { margin-top: 18px; }
+  .report-section h3 {
+    margin: 0 0 6px;
+    padding: 8px 10px;
+    background: #1e3a5f;
+    color: #fff;
+    border-radius: 4px 4px 0 0;
+    font-size: 15px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 14px;
+    color: #777;
+    font-size: 12px;
+  }
+
+  /* Print-only header & footer (hidden on screen) */
+  .print-header { display: none; }
+  .print-footer { display: none; }
+
+  /* Print */
+  @media print {
+    header, .toolbar, .stats, .row-actions, footer, .dev-bar, .no-print,
+    .item-cat, .col-actions, td.col-actions, th.col-actions
+    { display: none !important; }
+    body { background: #fff; }
+    main { padding: 0; }
+    .table-wrap { box-shadow: none; }
+    th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    tr.row-low td, tr.row-expired td, tr.row-soon td { background: #fff !important; }
+    .report-section h3 {
+      background: #333 !important; color: #fff !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .print-header {
+      display: block;
+      text-align: center;
+      padding: 6px 0 10px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #333;
+    }
+    .print-header h1 {
+      margin: 0 0 4px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .print-header .meta { font-size: 13px; color: #333; }
+    .print-header .meta strong { font-weight: 600; }
+
+.print-footer {
+  display: block;
+  margin-top: 20px;
+  font-size: 10px;
+  color: #333;
+}
+
+/* Top row (date + developer) */
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #333;
+  padding-top: 6px;
+}
+
+/* 5 line space */
+.footer-space {
+  height: 80px; /* adjust if needed */
+}
+
+/* Signature layout */
+.footer-signature {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.sig {
+  width: 30%;
+  font-size: 16px;
+}
+
+.sig.center {
+  text-align: center;
+}
+
+.sig.right {
+  text-align: right;
+}
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 16px; }
+    .toolbar input[type="search"] { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Developer info -->
+<div class="dev-bar">
+  <strong>App Developer:</strong> MD MAMUN MIAH
+  <span>|</span> Medical Technologist
+  <span>|</span> Mob: <a href="tel:+8801854000045">01854000045</a>
+  <span>|</span> Email: <a href="mailto:md.mamun8@gmail.com">md.mamun8@gmail.com</a>
+</div>
+
+<header>
+  <h1>Laboratory Inventory Report</h1>
+  <div class="actions">
+    <button id="homeBtn" class="ghost">Home</button>
+    <button id="procurementBtn" class="warning">Procurement</button>
+    <button id="addBtn" class="success">+ Add Reagent</button>
+    <button id="printBtn" class="ghost">Print Report</button>
+    <button id="exportCsvBtn" class="ghost">Export CSV</button>
+    <button id="exportJsonBtn" class="ghost">Backup JSON</button>
+    <label class="btn ghost" style="margin:0;">
+      Import JSON
+      <input type="file" id="importJsonInput" accept="application/json" style="display:none">
+    </label>
+    <button id="loadListBtn" class="ghost">Load Item List</button>
+    <button id="clearBtn" class="ghost">Clear All</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- Print-only header -->
+<div class="print-header">
+  <h1>Famous Specialized Hospital & Trauma Center</h1>
+  <div style="font-size:14px; margin-bottom:4px;">
+    Address: Ziku Tower, Comilla Road, Chandpur.
+  </div>
+
+  <h2 style="margin:6px 0 4px; font-size:18px; font-weight:600;">
+    Laboratory Inventory
+  </h2>
+
+  <div class="meta">
+    <strong>Inventory Date:</strong> <span id="printInvDate"></span>
+  </div>
+</div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar no-print">
+    <input type="search" id="search" placeholder="Search reagent name, category, note...">
+    <label>Inventory Date:
+      <input type="date" id="inventoryDate">
+    </label>
+<select id="categoryFilter" multiple>
+  <option value="">All categories</option>
+</select>
+
+<select id="subcategoryFilter" multiple>
+  <option value="">All subcategories</option>
+</select>
+    <select id="statusFilter">
+      <option value="">All statuses</option>
+      <option value="ok">In stock</option>
+      <option value="low">Low stock</option>
+      <option value="out">Out of stock</option>
+      <option value="soon">Expiring soon</option>
+      <option value="expired">Expired</option>
+      <option value="reorder">Reorder Demand</option>
+    </select>
+    <select id="viewMode">
+      <option value="all">All items</option>
+      <option value="low">Low stock report</option>
+      <option value="expired">Expired report</option>
+      <option value="soon">Expiring soon (30 days)</option>
+      <option value="bycat">By-category summary</option>
+    </select>
+   <select id="demandFilter">
+     <option value="">All Demand</option>
+     <option value="0">No Demand</option>
+     <option value="low">≤ Reorder Level</option>
+     <option value="high">Above Reorder Level</option>
+   </select>
+    <span class="spacer"></span>
+    <span id="countLabel" style="font-size:13px;color:#555;"></span>
+  </div>
+
+  <div class="toolbar no-print" style="margin-top:-4px;">
+    <label>Search by:
+      <select id="dateField">
+        <option value="stockDate">Stock Date</option>
+        <option value="expiry">Expired Date</option>
+      </select>
+    </label>
+    <label>From <input type="date" id="dateFrom"></label>
+    <label>To   <input type="date" id="dateTo"></label>
+    <button type="button" id="dateClearBtn" class="secondary">Clear</button>
+    <span id="dateRangeLabel" style="font-size:12px;color:#666;"></span>
+  </div>
+
+  <div id="reportArea"></div>
+
+<!-- PROCUREMENT PAGE -->
+<div id="procurementPage" style="display:none;">
+
+  <div class="toolbar no-print">
+    <h2 style="margin:0;">Procurement / Reorder Report</h2>
+    <span class="spacer"></span>
+
+    <select id="procSubcategory">
+      <option value="">All Subcategories</option>
+    </select>
+
+<select id="procDemandFilter">
+  <option value="">Default Reorder (PresentStock ≤ Demand)</option>
+
+  <!-- Demand > 0 -->
+  <option value="demandOnly">Demand > 0</option>
+
+  <!-- PresentStock vs Demand -->
+  <option value="less">PresentStock &lt; Demand</option>
+  <option value="equal">PresentStock = Demand</option>
+  <option value="lessEqual">PresentStock ≤ Demand</option>
+
+  <option value="greater">PresentStock &gt; Demand</option>
+  <option value="greaterEqual">PresentStock ≥ Demand</option>
+</select>
+
+    <button id="procPrintBtn" class="ghost">Print</button>
+    <button id="backBtn" class="secondary">← Back</button>
+  </div>
+
+  <div id="procurementTable"></div>
+
+</div>
+
+  <!-- Print-only footer -->
+<div class="print-footer">
+  
+  <!-- Top row -->
+  <div class="footer-top">
+    <div class="left">
+      <strong>Print Date:</strong> <span id="printDateTime"></span>
+    </div>
+    <div class="right">
+            <strong>App Developer:</strong> MD MAMUN MIAH &middot; Medical Technologist ; Mob: 01854000045 &middot;E-mail: md.mamun8@gmail.com
+    </div>
+  </div>
+
+  <!-- Space (10 lines) -->
+  <div class="footer-space"></div>
+
+  <!-- Signature section -->
+  <div class="footer-signature">
+    <div class="sig center">
+      ___________________________<br>
+      Lab In Charge
+    </div>
+
+    <div class="sig center">
+      ___________________________<br>
+      Store In Charge
+    </div>
+
+    <div class="sig right">
+      ___________________________<br>
+      Admin And HR Officer 
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<footer>
+  Laboratory Inventory Report &middot; Single-file offline app &middot; Data stored in your browser
+</footer>
+
+<!-- Item modal (name, category, demand, use, notes) -->
+<div class="modal-backdrop" id="itemModal">
+  <div class="modal">
+    <h2 id="itemModalTitle">Add Reagent</h2>
+    <div class="sub">Edit reagent-level information. Stock batches are managed separately.</div>
+    <form id="itemForm">
+      <div class="form-grid">
+        <label class="full">Reagent Name *
+          <input name="name" required>
+        </label>
+        <label>Category
+          <input name="category" list="categoryList" placeholder="e.g., Reagent, Consumables">
+          <datalist id="categoryList"></datalist>
+        </label>
+	<label>Subcategory
+  	<input name="subcategory" placeholder="e.g., Enzyme, Kit, Chemical">
+	</label>
+        <label>Default Unit
+          <input name="unit" placeholder="e.g., ml, box, pcs">
+        </label>
+        <label>Use (consumed so far)
+          <input name="use" type="number" step="any" value="0">
+        </label>
+        <label>Demand (reorder level)
+          <input name="demand" type="number" step="any" value="0">
+        </label>
+        <label>Unit Price
+          <input name="price" type="number" step="any" value="0">
+        </label>
+        <label>Supplier
+          <input name="supplier">
+        </label>
+<label>Mobile No
+  <input name="mobile" type="tel" placeholder="e.g., 018XXXXXXXX">
+</label>
+        <label>Manufacturer
+          <input name="manufacturer">
+        </label>
+        <label>Location
+          <input name="location">
+        </label>
+        <label class="full">Notes
+          <textarea name="notes"></textarea>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" data-close="itemModal">Cancel</button>
+        <button type="submit" class="success">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Batch modal (qty, expiry per stock entry) -->
+<div class="modal-backdrop" id="batchModal">
+  <div class="modal">
+    <h2 id="batchModalTitle">Add New Stock</h2>
+    <div class="sub" id="batchModalSub"></div>
+    <form id="batchForm">
+      <div class="form-grid">
+        <label>Quantity *
+          <input name="qty" type="number" step="any" required>
+        </label>
+        <label>Unit
+          <input name="unit" placeholder="e.g., ml, box">
+        </label>
+        <label>Stock Date (received)
+          <input name="stockDate" type="date">
+        </label>
+        <label>Expired Date
+          <input name="expiry" type="date">
+        </label>
+        <label class="full">Batch / Lot No.
+          <input name="batch">
+        </label>
+        <label class="full">Note
+          <input name="note">
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" data-close="batchModal">Cancel</button>
+        <button type="submit" class="success">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'lab_inventory_v2';
+  const OLD_STORAGE_KEY = 'lab_inventory_v1';
+  const INV_DATE_KEY = 'lab_inventory_inv_date_v1';
+  const SOON_DAYS = 30;
+
+  /** @type {Array<Object>} */
+  let items = [];
+  let editingItemId = null;
+  let batchCtx = null; // {itemId, batchId? , afterBatchId?}
+
+const homeBtn = document.getElementById('homeBtn');
+const procurementBtn = document.getElementById('procurementBtn');
+const backBtn = document.getElementById('backBtn');
+
+const mainPage = document.querySelector('main > *:not(#procurementPage)');
+const procurementPage = document.getElementById('procurementPage');
+
+homeBtn.onclick = () => {
+  procurementPage.style.display = 'none';
+  document.getElementById('reportArea').style.display = 'block';
+};
+
+procurementBtn.onclick = () => {
+  renderProcurement();
+
+  procurementPage.style.display = 'block';
+  document.getElementById('reportArea').style.display = 'none';
+};
+
+backBtn.onclick = () => homeBtn.click();
+
+function populateProcurementFilters() {
+  const subcats = [...new Set(items.map(i => i.subcategory).filter(Boolean))].sort();
+  const sel = document.getElementById('procSubcategory');
+
+  sel.innerHTML = '<option value="">All Subcategories</option>' +
+    subcats.map(sc => `<option>${sc}</option>`).join('');
+}
+
+function renderProcurement() {
+  populateProcurementFilters();
+
+  const sub = document.getElementById('procSubcategory').value;
+  const filter = document.getElementById('procDemandFilter').value;
+
+  let list = items.filter(it => {
+
+    const present = Number(presentStock(it)) || 0;
+    const demand  = Number(it.demand) || 0;
+
+    // Show only Demand > 0
+    if (demand <= 0) return false;
+
+    // Subcategory filter
+    if (sub && it.subcategory !== sub) return false;
+
+    switch (filter) {
+
+      // Demand > 0
+      case "demandOnly":
+        return demand > 0;
+
+      // PresentStock < Demand
+      case "less":
+        return present < demand;
+
+      // PresentStock = Demand
+      case "equal":
+        return present === demand;
+
+      // PresentStock <= Demand
+      case "lessEqual":
+        return present <= demand;
+
+      // PresentStock > Demand
+      case "greater":
+        return present > demand;
+
+      // PresentStock >= Demand
+      case "greaterEqual":
+        return present >= demand;
+
+      // Default procurement/reorder report
+      default:
+        return present <= demand;
+    }
+  });
+
+  // Sort by lowest stock first
+  list.sort((a, b) => {
+    return presentStock(a) - presentStock(b);
+  });
+
+  if (!list.length) {
+    document.getElementById('procurementTable').innerHTML = `
+      <p style="padding:20px;text-align:center;">
+        No procurement items found
+      </p>
+    `;
+    return;
+  }
+
+  const rows = list.map((it, i) => {
+
+    const present = presentStock(it);
+    const demand  = Number(it.demand) || 0;
+    const shortage = Math.max(demand - present, 0);
+
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${it.name}</td>
+
+        <td>${fmtNumUnit(present, it.unit)}</td>
+
+        <td>${fmtNumUnit(demand, it.unit)}</td>
+
+
+
+        <td>${it.supplier || ''}</td>
+        <td>${it.mobile || ''}</td>
+        <td>${it.manufacturer || ''}</td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('procurementTable').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item</th>
+            <th>PresentStock</th>
+            <th>Demand</th>
+            <th>Supplier</th>
+            <th>Mobile No</th>
+            <th>Manufacturer</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+document.getElementById('procSubcategory').addEventListener('change', renderProcurement);
+document.getElementById('procDemandFilter').addEventListener('change', renderProcurement);
+
+document.getElementById('procPrintBtn').addEventListener('click', () => {
+  window.print();
+});
+
+  // ---------- Persistence ----------
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) { items = JSON.parse(raw) || []; }
+      else {
+        // Attempt migration from older v1 format
+        const oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (oldRaw) {
+          const legacy = JSON.parse(oldRaw) || [];
+          items = legacy.map(migrateLegacy);
+          save();
+        } else {
+          items = [];
+        }
+      }
+    } catch (e) {
+      console.error('Load failed', e);
+      items = [];
+    }
+    // Ensure every item has a batches array.
+    for (const it of items) {
+      if (!Array.isArray(it.batches)) it.batches = [];
+      if (it.id === undefined) it.id = uid();
+      for (const b of it.batches) if (!b.id) b.id = uid();
+    }
+  }
+
+  function migrateLegacy(old) {
+    const it = {
+      id: old.id || uid(),
+      name: old.name || '',
+      category: old.category || '',
+      unit: old.unit || '',
+      price: Number(old.price) || 0,
+      demand: Number(old.demand ?? old.reorder) || 0,
+      use: Number(old.use) || 0,
+      supplier: old.supplier || '',
+      manufacturer: old.manufacturer || '',
+      location: old.location || '',
+      notes: old.notes || '',
+      batches: [],
+    };
+    const opening = Number(old.openingStock ?? old.quantity) || 0;
+    const newStock = Number(old.newStock) || 0;
+    if (opening > 0) {
+      it.batches.push({ id: uid(), qty: opening, unit: it.unit, expiry: old.expiry || '', stockDate: old.received || '', batch: old.batch || '', note: 'Opening stock' });
+    }
+    if (newStock > 0) {
+      it.batches.push({ id: uid(), qty: newStock, unit: it.unit, expiry: '', stockDate: '', batch: '', note: '' });
+    }
+    return it;
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  // ---------- Utilities ----------
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+  function daysUntil(dateStr) {
+    if (!dateStr) return null;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const d = new Date(dateStr); d.setHours(0,0,0,0);
+    if (isNaN(d)) return null;
+    return Math.round((d - today) / 86400000);
+  }
+
+  function totalStock(item) {
+    return item.batches.reduce((s, b) => s + (Number(b.qty) || 0), 0);
+   }
+  function presentStock(item) {
+    return totalStock(item) - (Number(item.use) || 0);
+  }
+  function earliestExpiry(item) {
+    const dates = (item.batches || []).map(b => b.expiry).filter(Boolean).sort();
+    return dates[0] || '';
+  }
+
+  function fmtNum(n) {
+    const v = Number(n);
+    if (!isFinite(v)) return '';
+    return Number.isInteger(v) ? String(v) : v.toFixed(2);
+  }
+  function fmtNumUnit(n, unit) {
+    const s = fmtNum(n);
+    if (s === '') return '';
+    const u = (unit || '').trim();
+    return u ? s + ' ' + u : s;
+  }
+  function fmtMoney(n) { return (Number(n) || 0).toFixed(2); }
+
+  function fmtQty(b, itemUnit) {
+    if (!b) return '';
+    const unit = (b.unit || itemUnit || '').trim();
+    const qty = fmtNum(b.qty);
+    return qty + (unit ? ' ' + unit : '');
+  }
+
+  function fmtQtyCell(b, itemUnit) {
+    if (!b) return '<span class="batch dash">—</span>';
+    return `<span class="batch"><span class="qty">${escapeHtml(fmtQty(b, itemUnit))}</span></span>`;
+  }
+
+  function fmtShortDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function batchStatusTags(b) {
+    const tags = [];
+    if (!b) return tags;
+    const du = daysUntil(b.expiry);
+    if (du !== null) {
+      if (du < 0) tags.push('expired');
+      else if (du <= SOON_DAYS) tags.push('soon');
+    }
+    return tags;
+  }
+
+  function itemStatusTags(item) {
+    const present = presentStock(item);
+    const demand = Number(item.demand) || 0;
+    const tags = [];
+    if (present <= 0) tags.push('out');
+    else if (demand > 0 && present <= demand) tags.push('low');
+    else tags.push('ok');
+    for (const b of item.batches || []) {
+      const bt = batchStatusTags(b);
+      for (const t of bt) if (!tags.includes(t)) tags.push(t);
+    }
+    return tags;
+  }
+
+function getSelectedValues(select) {
+  return Array.from(select.selectedOptions).map(opt => opt.value);
+}
+
+
+  // ---------- Rendering: stats ----------
+  function renderStats() {
+    const total = items.length;
+    const totalPresent = items.reduce((s, it) => s + presentStock(it), 0);
+    const totalUse = items.reduce((s, it) => s + (Number(it.use) || 0), 0);
+    const totalValue = items.reduce((s, it) => s + presentStock(it) * (Number(it.price) || 0), 0);
+    let low = 0, expired = 0, soon = 0, out = 0;
+    for (const it of items) {
+      const st = itemStatusTags(it);
+      if (st.includes('out')) out++;
+      else if (st.includes('low')) low++;
+      if (st.includes('expired')) expired++;
+      else if (st.includes('soon')) soon++;
+    }
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="label">Reagents</div><div class="num">${total}</div></div>
+      <div class="stat"><div class="label">Present Stock</div><div class="num">${fmtNum(totalPresent)}</div></div>
+      <div class="stat"><div class="label">Total Use</div><div class="num">${fmtNum(totalUse)}</div></div>
+      <div class="stat value"><div class="label">Stock Value</div><div class="num">${fmtMoney(totalValue)}</div></div>
+      <div class="stat low"><div class="label">Low / Out</div><div class="num">${low + out}</div></div>
+      <div class="stat soon"><div class="label">Expiring &le;${SOON_DAYS}d</div><div class="num">${soon}</div></div>
+      <div class="stat exp"><div class="label">Expired Batches</div><div class="num">${expired}</div></div>
+    `;
+  }
+
+function populateFilters() {
+  const cats = [...new Set(items.map(i => i.category).filter(Boolean))].sort();
+  const subcats = [...new Set(items.map(i => i.subcategory).filter(Boolean))].sort();
+
+  const catSel = document.getElementById('categoryFilter');
+  const subSel = document.getElementById('subcategoryFilter');
+
+  const currentCat = catSel.value;
+  const currentSub = subSel.value;
+
+  catSel.innerHTML = '<option value="">All categories</option>' +
+    cats.map(c => `<option${c === currentCat ? ' selected' : ''}>${escapeHtml(c)}</option>`).join('');
+
+  subSel.innerHTML = '<option value="">All subcategories</option>' +
+    subcats.map(sc => `<option${sc === currentSub ? ' selected' : ''}>${escapeHtml(sc)}</option>`).join('');
+
+  document.getElementById('categoryList').innerHTML =
+    cats.map(c => `<option value="${escapeHtml(c)}">`).join('');
+}
+
+  // ---------- Rendering: table ----------
+  function dateRangeActive() {
+    return !!(document.getElementById('dateFrom').value || document.getElementById('dateTo').value);
+  }
+  function updateDateRangeLabel() {
+    const field = document.getElementById('dateField');
+    const from = document.getElementById('dateFrom').value;
+    const to   = document.getElementById('dateTo').value;
+    const label = document.getElementById('dateRangeLabel');
+    if (!from && !to) { label.textContent = ''; return; }
+    const fieldText = field.options[field.selectedIndex].text;
+    const f = from ? fmtShortDate(from) : '…';
+    const t = to   ? fmtShortDate(to)   : '…';
+    label.textContent = `${fieldText}: ${f} → ${t}`;
+  }
+  function getDisplayBatches(item) {
+    const all = item.batches || [];
+    const field = document.getElementById('dateField').value;
+    const from = document.getElementById('dateFrom').value;
+    const to   = document.getElementById('dateTo').value;
+    if (!from && !to) return all;
+    return all.filter(b => {
+      const v = b[field];
+      if (!v) return false;
+      if (from && v < from) return false;
+      if (to   && v > to)   return false;
+      return true;
+    });
+  }
+
+  function filteredItems() {
+    const demandFilter = document.getElementById('demandFilter').value;
+    const q = document.getElementById('search').value.trim().toLowerCase();
+const catList = getSelectedValues(document.getElementById('categoryFilter'));
+const subcatList = getSelectedValues(document.getElementById('subcategoryFilter'));
+    const st = document.getElementById('statusFilter').value;
+    const dateActive = dateRangeActive();
+    return items.filter(it => {
+if (catList.length && !catList.includes(it.category)) return false;
+if (subcatList.length && !subcatList.includes(it.subcategory)) return false;
+      if (q) {
+
+    const hay = [
+      it.name,
+      it.category,
+it.supplier,
+it.mobile,
+it.manufacturer,
+      it.location,
+      it.notes,
+      it.demand,   // ✅ added
+      ...(it.batches || []).map(b => `${b.batch || ''} ${b.note || ''}`)
+    ].map(x => String(x || '').toLowerCase()).join(' ');
+        if (!hay.includes(q)) return false;
+      }
+
+
+if (st) {
+  const tags = itemStatusTags(it);
+  const present = presentStock(it);
+  const demand = Number(it.demand) || 0;
+
+  if (st === "reorder") {
+    if (!(present < demand)) return false;
+  } else {
+    if (!tags.includes(st)) return false;
+  }
+}
+
+    if (demandFilter) {
+     const present = presentStock(it);
+     const demand = Number(it.demand) || 0;
+
+     if (demandFilter === "0" && demand !== 0) return false;
+     if (demandFilter === "low" && !(present <= demand)) return false;
+     if (demandFilter === "high" && !(present > demand)) return false;
+   }
+   document.getElementById('demandFilter').addEventListener('change', render);
+
+      // Drop items with no batch matching the active date range
+      if (dateActive && getDisplayBatches(it).length === 0) return false;
+      return true;
+    });
+  }
+
+const HEADERS = [
+  'ID',
+  'Reagent Name',
+  'OpeningStock',
+  'NewStock',
+  'TotalStock',
+  'Uses',
+  'PresentStock',
+  'Demand',
+  'StockDate',
+  'ExpiredDate',
+  'Actions'
+];
+
+  function renderHead() {
+    return `<tr>${HEADERS.map((h) => {
+      const cls = h === 'Actions' ? ' class="col-actions no-print"' : '';
+      return `<th${cls}>${h}</th>`;
+    }).join('')}</tr>`;
+  }
+
+  function rowClassFor(b) {
+    const tags = batchStatusTags(b);
+    if (tags.includes('expired')) return 'row-expired';
+    if (tags.includes('soon')) return 'row-soon';
+    return '';
+  }
+
+  // Layout (matches user spec):
+  //   N batches per item → N rows.
+  //   Rows 0..N-2 (older batches): qty shown in "Old Stock" column; New Stock empty.
+  //   Row N-1 (newest batch):      qty shown in "New Stock" column; Uses/Present/Demand
+  //                                are shown only on this row (item-level totals).
+  //   Each row has its own Stock Date + Expired Date (per-batch) and its own actions.
+  //   If N === 0 (no batches yet), render a single placeholder row so the reagent is visible.
+  function renderItemRows(item, serial) {
+    const batches = getDisplayBatches(item);
+    const itemStatus = itemStatusTags(item);
+    const itemBadges = [];
+    if (itemStatus.includes('out')) itemBadges.push('<span class="badge low">OUT</span>');
+    else if (itemStatus.includes('low')) itemBadges.push('<span class="badge low">LOW</span>');
+
+    const nameCell = `
+      <div class="item-name">${itemBadges.join('')}${escapeHtml(item.name)}</div>
+      ${item.category ? `<div class="item-cat">${escapeHtml(item.category)}${item.subcategory ? ' → ' + escapeHtml(item.subcategory) : ''}</div>` : ''}
+    `;
+
+    if (batches.length === 0) {
+      const actionButtons = [
+        `<button class="success" data-action="addBatch" data-item="${item.id}">+ New Stock</button>`,
+        `<button data-action="editItem" data-item="${item.id}">Edit Item</button>`,
+        `<button class="danger" data-action="delItem" data-item="${item.id}">Del Item</button>`,
+      ];
+      return `
+        <tr class="item-start">
+          <td>${serial}</td>
+          <td>${nameCell}</td>
+          <td><span class="batch dash">—</span></td>
+          <td><span class="batch dash">—</span></td>
+	  <td>${escapeHtml(fmtNumUnit(totalStock(item), item.unit))}</td>  <!-- TotalStock -->
+	  <td>${escapeHtml(fmtNumUnit(item.use, item.unit))}</td>
+	  <td>${renderPresent(item)}</td>
+          <td>${escapeHtml(fmtNumUnit(item.demand, item.unit))}</td>
+          <td></td>
+          <td></td>
+                           <td>${escapeHtml(item.supplier || '')}</td>
+          <td class="row-actions col-actions no-print">${actionButtons.join('')}</td>
+        </tr>
+      `;
+    }
+
+    const rows = [];
+    const lastIdx = batches.length - 1;
+    for (let i = 0; i < batches.length; i++) {
+      const b = batches[i];
+      const isFirst = i === 0;
+      const isLast = i === lastIdx;
+      const cls = (isFirst ? 'item-start' : 'item-continuation') + ' ' + rowClassFor(b);
+
+      const actionButtons = [
+        `<button class="secondary" data-action="editBatch" data-item="${item.id}" data-batch="${b.id}">Edit</button>`,
+        `<button class="danger"    data-action="delBatch"  data-item="${item.id}" data-batch="${b.id}">Delete</button>`,
+      ];
+      if (isLast) {
+        actionButtons.push(`<button class="success" data-action="addBatch" data-item="${item.id}">+ New Stock</button>`);
+      }
+      if (isFirst) {
+        actionButtons.push(`<button data-action="editItem" data-item="${item.id}">Edit Item</button>`);
+        actionButtons.push(`<button class="danger" data-action="delItem" data-item="${item.id}">Del Item</button>`);
+      }
+
+      const oldCell = isLast ? '<span class="batch dash">—</span>' : fmtQtyCell(b, item.unit);
+      const newCell = isLast ? fmtQtyCell(b, item.unit) : '<span class="batch dash">—</span>';
+
+      rows.push(`
+        <tr class="${cls}">
+          <td>${isFirst ? serial : '<span class="ditto">,,</span>'}</td>
+          <td>${isFirst ? nameCell : '<span class="ditto">,,</span>'}</td>
+          <td>${oldCell}</td>
+          <td>${newCell}</td>
+	  <td>${isLast ? escapeHtml(fmtNumUnit(totalStock(item), item.unit)) : ''}</td> <!-- TotalStock -->
+<td>${isLast ? escapeHtml(fmtNumUnit(item.use, item.unit)) : ''}</td>
+<td>${isLast ? renderPresent(item) : ''}</td>
+          <td>${isLast ? escapeHtml(fmtNumUnit(item.demand, item.unit)) : ''}</td>
+          <td>${b.stockDate ? fmtShortDate(b.stockDate) : ''}</td>
+         <td>${b.expiry ? fmtShortDate(b.expiry) : ''}</td>
+<td class="row-actions col-actions no-print">${actionButtons.join('')}</td>
+        </tr>
+      `);
+    }
+    return rows.join('');
+  }
+
+  function renderPresent(item) {
+    const present = presentStock(item);
+    const demand = Number(item.demand) || 0;
+    const style = present <= 0 ? 'color:#b00;font-weight:700;'
+                : (demand > 0 && present <= demand) ? 'color:#8a6d00;font-weight:700;'
+                : 'font-weight:600;';
+    return `<span style="${style}">${escapeHtml(fmtNumUnit(present, item.unit))}</span>`;
+  }
+
+  function renderTable(list, title) {
+    const area = document.getElementById('reportArea');
+    const wrap = (body) => `
+      <div class="table-wrap">
+        <table>
+          <thead>${renderHead()}</thead>
+          <tbody>${body}</tbody>
+        </table>
+      </div>
+    `;
+    let body;
+    if (!list.length) {
+      body = `<tr><td colspan="${HEADERS.length}" style="text-align:center;padding:24px;color:#888;">No items</td></tr>`;
+    } else {
+      body = list.map((it, i) => renderItemRows(it, i + 1)).join('');
+    }
+    const shell = title
+      ? `<div class="report-section"><h3>${escapeHtml(title)}</h3>${wrap(body)}</div>`
+      : wrap(body);
+    area.innerHTML = shell;
+    document.getElementById('countLabel').textContent =
+      `${list.length} of ${items.length} reagent(s)`;
+  }
+
+  function renderByCategory() {
+    const list = filteredItems();
+    const groups = {};
+    for (const it of list) {
+      const k = it.category || '(uncategorized)';
+      if (!groups[k]) groups[k] = [];
+      groups[k].push(it);
+    }
+    const keys = Object.keys(groups).sort();
+    const area = document.getElementById('reportArea');
+    if (!keys.length) {
+      area.innerHTML = `<div class="table-wrap"><p style="padding:20px;text-align:center;color:#888;">No items</p></div>`;
+      document.getElementById('countLabel').textContent = `0 of ${items.length} reagent(s)`;
+      return;
+    }
+    area.innerHTML = keys.map(k => {
+      const group = groups[k];
+      const totPresent = group.reduce((s, x) => s + presentStock(x), 0);
+      const totUse = group.reduce((s, x) => s + (Number(x.use) || 0), 0);
+      return `
+        <div class="report-section">
+          <h3>${escapeHtml(k)} &mdash; ${group.length} reagent(s), present ${fmtNum(totPresent)}, use ${fmtNum(totUse)}</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>${renderHead()}</thead>
+              <tbody>${group.map((it, i) => renderItemRows(it, i + 1)).join('')}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('countLabel').textContent =
+      `${list.length} of ${items.length} reagent(s) in ${keys.length} category(ies)`;
+  }
+
+  function render() {
+    renderStats();
+    populateFilters();
+    updateDateRangeLabel();
+    const mode = document.getElementById('viewMode').value;
+    if (mode === 'bycat') { renderByCategory(); return; }
+    let list = filteredItems();
+    let title = '';
+    if (mode === 'low') {
+      list = list.filter(it => {
+        const t = itemStatusTags(it);
+        return t.includes('low') || t.includes('out');
+      });
+      title = 'Low / Out of Stock Report';
+    } else if (mode === 'expired') {
+      list = list.filter(it => itemStatusTags(it).includes('expired'));
+      title = 'Expired Items Report';
+    } else if (mode === 'soon') {
+      list = list.filter(it => {
+        const t = itemStatusTags(it);
+        return t.includes('soon') && !t.includes('expired');
+      });
+      title = `Expiring in the Next ${SOON_DAYS} Days`;
+    }
+    renderTable(list, title);
+  }
+
+  // ---------- Modals ----------
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(btn.dataset.close));
+  });
+  document.querySelectorAll('.modal-backdrop').forEach(bd => {
+    bd.addEventListener('click', e => { if (e.target === bd) closeModal(bd.id); });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-backdrop.open').forEach(bd => bd.classList.remove('open'));
+    }
+  });
+
+  function openItemModal(item) {
+    editingItemId = item ? item.id : null;
+    document.getElementById('itemModalTitle').textContent = item ? 'Edit Reagent' : 'Add Reagent';
+    const form = document.getElementById('itemForm');
+    form.reset();
+    if (item) {
+for (const name of ['name','category','subcategory','unit','use','demand','price','supplier','manufacturer','location','notes']) {
+        if (form.elements[name] !== undefined) form.elements[name].value = item[name] ?? '';
+      }
+    }
+    openModal('itemModal');
+    setTimeout(() => form.elements['name'].focus(), 50);
+  }
+
+  document.getElementById('itemForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = {};
+    for (const el of form.elements) {
+      if (!el.name) continue;
+      data[el.name] = el.value;
+    }
+    data.use    = Number(data.use)    || 0;
+    data.demand = Number(data.demand) || 0;
+    data.price  = Number(data.price)  || 0;
+    if (editingItemId) {
+      const it = items.find(x => x.id === editingItemId);
+      if (it) Object.assign(it, data);
+    } else {
+      items.push({ id: uid(), ...data, batches: [] });
+    }
+    save(); render(); closeModal('itemModal');
+  });
+
+  function openBatchModal(itemId, batchId) {
+    const item = items.find(x => x.id === itemId);
+    if (!item) return;
+    batchCtx = { itemId, batchId: batchId || null };
+    const existing = batchId ? (item.batches || []).find(b => b.id === batchId) : null;
+    document.getElementById('batchModalTitle').textContent = existing ? 'Edit Stock Batch' : 'Add New Stock';
+    document.getElementById('batchModalSub').textContent = `Reagent: ${item.name}`;
+    const form = document.getElementById('batchForm');
+    form.reset();
+    if (existing) {
+      for (const name of ['qty','unit','expiry','stockDate','batch','note']) {
+        if (form.elements[name] !== undefined) form.elements[name].value = existing[name] ?? '';
+      }
+    } else {
+      // Prefill unit from item default if empty
+      if (form.elements['unit']) form.elements['unit'].value = item.unit || '';
+    }
+    openModal('batchModal');
+    setTimeout(() => form.elements['qty'].focus(), 50);
+  }
+
+  document.getElementById('batchForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!batchCtx) return;
+    const form = e.currentTarget;
+    const data = {};
+    for (const el of form.elements) {
+      if (!el.name) continue;
+      data[el.name] = el.value;
+    }
+    data.qty = Number(data.qty) || 0;
+    const item = items.find(x => x.id === batchCtx.itemId);
+    if (!item) return;
+    if (!Array.isArray(item.batches)) item.batches = [];
+    if (batchCtx.batchId) {
+      const b = item.batches.find(x => x.id === batchCtx.batchId);
+      if (b) Object.assign(b, data);
+    } else {
+      item.batches.push({ id: uid(), ...data });
+    }
+    save(); render(); closeModal('batchModal');
+  });
+
+  // ---------- Table action dispatch ----------
+  document.getElementById('reportArea').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const itemId = btn.dataset.item;
+    const batchId = btn.dataset.batch;
+    const item = items.find(x => x.id === itemId);
+    if (!item) return;
+
+    if (action === 'editItem') {
+      openItemModal(item);
+    } else if (action === 'delItem') {
+      if (confirm(`Delete reagent "${item.name}" and all its stock batches?`)) {
+        items = items.filter(x => x.id !== itemId);
+        save(); render();
+      }
+    } else if (action === 'addBatch') {
+      openBatchModal(itemId, null);
+    } else if (action === 'editBatch') {
+      openBatchModal(itemId, batchId);
+    } else if (action === 'delBatch') {
+      const b = (item.batches || []).find(x => x.id === batchId);
+      if (b && confirm(`Delete this stock batch (qty ${b.qty})?`)) {
+        item.batches = item.batches.filter(x => x.id !== batchId);
+        save(); render();
+      }
+    }
+  });
+
+  // ---------- Save as / Download helpers ----------
+  async function saveBlob(suggestedName, blob, description, ext) {
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{
+            description: description || 'File',
+            accept: { [blob.type]: ['.' + ext] }
+          }]
+        });
+        const writer = await handle.createWritable();
+        await writer.write(blob);
+        await writer.close();
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        // Fall through to download
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestedName;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- CSV / JSON export ----------
+  function toCsvValue(v) {
+    const s = String(v ?? '');
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function exportCsv() {
+    const headers = [
+      'ID', 'Reagent Name', 'Category',
+      'Opening/Old Stock', 'New Stock',
+      'Uses', 'Present Stock', 'Demand',
+      'Stock Date', 'Expired Date',
+      'Batch/Lot', 'Note',
+      'Price', 'Supplier', 'Mobile No', 'Manufacturer', 'Location', 'Item Notes'
+    ];
+    const rows = [headers.join(',')];
+    items.forEach((it, idx) => {
+      const serial = idx + 1;
+      const batches = it.batches || [];
+      if (batches.length === 0) {
+        rows.push([
+          serial, it.name, it.category || '',
+          '', '',
+          fmtNumUnit(it.use, it.unit), fmtNumUnit(presentStock(it), it.unit), fmtNumUnit(it.demand, it.unit),
+          '', '',
+          '', '',
+          it.price, it.supplier || '', it.manufacturer || '', it.location || '', it.notes || '',
+        ].map(toCsvValue).join(','));
+        return;
+      }
+      const lastIdx = batches.length - 1;
+      batches.forEach((b, i) => {
+        const isFirst = i === 0;
+        const isLast = i === lastIdx;
+        const qty = fmtQty(b, it.unit);
+        rows.push([
+          isFirst ? serial : '',
+          isFirst ? it.name : '',
+          isFirst ? (it.category || '') : '',
+          isLast ? '' : qty,
+          isLast ? qty : '',
+          isLast ? fmtNumUnit(it.use, it.unit) : '',
+          isLast ? fmtNumUnit(presentStock(it), it.unit) : '',
+          isLast ? fmtNumUnit(it.demand, it.unit) : '',
+          b.stockDate ? fmtShortDate(b.stockDate) : '',
+          b.expiry    ? fmtShortDate(b.expiry)    : '',
+          b.batch || '',
+          b.note  || '',
+          isFirst ? it.price : '',
+isFirst ? (it.supplier || '') : '',
+isFirst ? (it.mobile || '') : '',
+isFirst ? (it.manufacturer || '') : '',
+          isFirst ? (it.location || '') : '',
+          isFirst ? (it.notes || '') : '',
+        ].map(toCsvValue).join(','));
+      });
+    });
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const name = `lab-inventory-${new Date().toISOString().slice(0,10)}.csv`;
+    saveBlob(name, blob, 'CSV file', 'csv');
+  }
+
+  function exportJson() {
+    const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+    const name = `lab-inventory-backup-${new Date().toISOString().slice(0,10)}.json`;
+    saveBlob(name, blob, 'JSON backup', 'json');
+  }
+
+  function importJson(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!Array.isArray(data)) throw new Error('Backup must be an array');
+        if (!confirm(`Import ${data.length} reagents? This will REPLACE current inventory.`)) return;
+        items = data.map(it => {
+          const clone = { ...it, id: it.id || uid() };
+          if (!Array.isArray(clone.batches)) clone.batches = [];
+          for (const b of clone.batches) if (!b.id) b.id = uid();
+          return clone;
+        });
+        save(); render();
+      } catch (e) {
+        alert('Import failed: ' + e.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- Preset lab item list ----------
+  const PRESET_ITEMS = [
+    ['Glucose', 'Biochemistry'],['Urea', 'Biochemistry'],['Creatinine', 'Biochemistry'],['Uric Acid', 'Biochemistry'],
+    ['Cholesterol', 'Biochemistry'],['Triglycerides', 'Biochemistry'],['HDL Cholesterol', 'Biochemistry'],['LDL Cholesterol', 'Biochemistry'],
+    ['Bilirubin (Total)', 'Biochemistry'],['Bilirubin (Direct)', 'Biochemistry'],['Bilirubin (Indirect)', 'Biochemistry'],
+    ['SGPT (ALT)', 'Biochemistry'],['SGOT (AST)', 'Biochemistry'],['Alkaline Phosphatase (ALP)', 'Biochemistry'],
+    ['Total Protein', 'Biochemistry'],['Albumin', 'Biochemistry'],['Globulin', 'Biochemistry'],
+    ['Calcium', 'Biochemistry'],['Magnesium', 'Biochemistry'],['Phosphorus', 'Biochemistry'],
+    ['Amylase', 'Biochemistry'],['Lipase', 'Biochemistry'],['Electrolytes', 'Biochemistry'],['Electrolyte Wash', 'Biochemistry'],
+    ['HBA1C', 'Biochemistry'],['APTT', 'Biochemistry'],['Prothrombin Time', 'Biochemistry'],
+
+    ['TSH (GP Getein)', 'Hormone / Immunoassay'],['TSH (Elisa)', 'Hormone / Immunoassay'],
+    ['T3', 'Hormone / Immunoassay'],['T4', 'Hormone / Immunoassay'],['FT3', 'Hormone / Immunoassay'],['FT4', 'Hormone / Immunoassay'],
+    ['LH', 'Hormone / Immunoassay'],['FSH', 'Hormone / Immunoassay'],
+    ['Prolactin (GP Getein)', 'Hormone / Immunoassay'],['Prolactin (Elisa)', 'Hormone / Immunoassay'],
+    ['Pro-BNP', 'Hormone / Immunoassay'],['D-Dimer', 'Hormone / Immunoassay'],['S.IgE', 'Hormone / Immunoassay'],
+    ['β-HCG', 'Hormone / Immunoassay'],['Vitamin-D', 'Hormone / Immunoassay'],['25 OH-VD', 'Hormone / Immunoassay'],
+    ['Testosterone', 'Hormone / Immunoassay'],['AMH', 'Hormone / Immunoassay'],['Progestones', 'Hormone / Immunoassay'],
+    ['CA-125', 'Hormone / Immunoassay'],['Progesterone', 'Hormone / Immunoassay'],['Pro Calcitonin', 'Hormone / Immunoassay'],
+    ['PCT', 'Hormone / Immunoassay'],['hs-CRP', 'Hormone / Immunoassay'],
+
+    ['Dengue NS-1', 'Serology / Rapid Test'],['Dengue IgM, IgG', 'Serology / Rapid Test'],
+    ['Blood Grouping', 'Serology / Rapid Test'],['ASO', 'Serology / Rapid Test'],['RA', 'Serology / Rapid Test'],
+    ['CRP (Latex)', 'Serology / Rapid Test'],['Widal', 'Serology / Rapid Test'],['Fibrile Antigen', 'Serology / Rapid Test'],
+    ['VDRL', 'Serology / Rapid Test'],['Pregnancy Test (Latex)', 'Serology / Rapid Test'],['Pregnancy Test (Device)', 'Serology / Rapid Test'],
+    ['HBsAg (Device)', 'Serology / Rapid Test'],['Syphilis (Device)', 'Serology / Rapid Test'],['Anti HCV (Device)', 'Serology / Rapid Test'],
+    ['Anti HIV (Device)', 'Serology / Rapid Test'],['H. Pylori (Device)', 'Serology / Rapid Test'],
+    ['Malarial Parasite (Device)', 'Serology / Rapid Test'],['Kala Fever', 'Serology / Rapid Test'],['Kala Zor', 'Serology / Rapid Test'],
+    ['Anti Brucella Antibody', 'Serology / Rapid Test'],['Chikungunya (ICT)', 'Serology / Rapid Test'],
+    ['ICT Typhoid (Device)', 'Serology / Rapid Test'],['Combo (HIV, HCV, HBsAg, Syphilis)', 'Serology / Rapid Test'],
+    ['OBT Device', 'Serology / Rapid Test'],['Anti-CCP (Elisa)', 'Serology / Rapid Test'],
+    ['HBsAg (ELISA)', 'Serology / Rapid Test'],['HBeAg (ELISA)', 'Serology / Rapid Test'],
+    ['CK-MB', 'Serology / Rapid Test'],['Troponin I', 'Serology / Rapid Test'],['Typhoid', 'Serology / Rapid Test'],
+    ['S.Iron', 'Serology / Rapid Test'],['Ferritin', 'Serology / Rapid Test'],['TIBC', 'Serology / Rapid Test'],
+    ['Anti HBs', 'Serology / Rapid Test'],['Anti HBe', 'Serology / Rapid Test'],['TB IgG/IgM', 'Serology / Rapid Test'],
+    ['PSA', 'Serology / Rapid Test'],['Anti-Human Globulin', 'Serology / Rapid Test'],
+
+    ['MT Test', 'Microbiology'],['Montex Tuberculin Test', 'Microbiology'],
+    ['Nutrient Agar', 'Microbiology'],['MacConkey Agar', 'Microbiology'],['Blood Agar', 'Microbiology'],
+    ['Chocolate Agar', 'Microbiology'],['Sabouraud Dextrose Agar (SDA)', 'Microbiology'],['Mueller-Hinton Agar', 'Microbiology'],
+    ['Gram Stain Kit', 'Microbiology'],['Crystal Violet', 'Microbiology'],['Iodine', 'Microbiology'],
+    ['Decolorizer (Alcohol/Acetone)', 'Microbiology'],['Safranin', 'Microbiology'],
+    ['Oxidase Reagent', 'Microbiology'],['Catalase Reagent', 'Microbiology'],['Indole Reagent', 'Microbiology'],
+
+    ['DNA Extraction Kit', 'Molecular Biology'],['RNA Extraction Kit', 'Molecular Biology'],
+    ['PCR Master Mix', 'Molecular Biology'],['Taq Polymerase', 'Molecular Biology'],
+    ['DNA Ladder', 'Molecular Biology'],['Agarose', 'Molecular Biology'],
+    ['Ethidium Bromide / Safe Dye', 'Molecular Biology'],['Buffer Solutions (TE Buffer, TAE Buffer)', 'Molecular Biology'],
+
+    ['Benedict\u2019s Solution', 'General Chemical'],['Fehling\u2019s Solution', 'General Chemical'],
+    ['Sulfosalicylic Acid', 'General Chemical'],['Urine Test Strips (Multistix)', 'General Chemical'],
+    ['Formalin', 'General Chemical'],['Xylene', 'General Chemical'],['Paraffin Wax', 'General Chemical'],
+    ['Hematoxylin', 'General Chemical'],['Eosin', 'General Chemical'],
+    ['Alcohol (70%, 90%, Absolute)', 'General Chemical'],['Distilled Water', 'General Chemical'],['Deionized Water', 'General Chemical'],
+    ['Ethanol', 'General Chemical'],['Methanol', 'General Chemical'],['Acetone', 'General Chemical'],
+    ['Hydrogen Peroxide', 'General Chemical'],['Bleach (Sodium Hypochlorite)', 'General Chemical'],
+
+    ['Stematolyser', 'Hematology'],['Cell Clean', 'Hematology'],['Cell Pack', 'Hematology'],
+    ['EDTA (anticoagulant)', 'Hematology'],['Sodium Citrate', 'Hematology'],['Heparin', 'Hematology'],
+    ['Drabkin\u2019s Reagent (for Hb)', 'Hematology'],
+    ['Leishman Stain', 'Hematology'],['Giemsa Stain', 'Hematology'],['Wright Stain', 'Hematology'],
+    ['Buffered Water', 'Hematology'],['Immersion Oil', 'Hematology'],
+
+    ['Butter Fly Needle', 'Consumables'],['Baby Butter Fly 25G', 'Consumables'],
+    ['5cc Syringe', 'Consumables'],['3cc Syringe', 'Consumables'],
+    ['CBC Tube', 'Consumables'],['Red Tube', 'Consumables'],['ESR Tube', 'Consumables'],
+    ['Glucose Tube', 'Consumables'],['P. Time Tube', 'Consumables'],['Gel Tube Yellow', 'Consumables'],
+    ['Uric 10CF', 'Consumables'],['Uric 3V', 'Consumables'],['Sprite', 'Consumables'],
+    ['Urine Pot', 'Consumables'],['Urine C/S Pot', 'Consumables'],['Stool Pot', 'Consumables'],
+    ['Yellow Tips', 'Consumables'],['Blue Tips', 'Consumables'],['Hand Gloves', 'Consumables'],
+    ['Hexisol', 'Consumables'],['Alcohol Pad', 'Consumables'],['Nishiben Bandage', 'Consumables'],
+    ['Facial Soft Tissue', 'Consumables'],['Face Mask', 'Consumables'],
+    ['Urine Centrifuge Tube', 'Consumables'],['Roll Tissue', 'Consumables'],
+  ];
+
+  function blankItem(name, category) {
+    return {
+      id: uid(), name, category,
+      unit: '', price: 0, demand: 0, use: 0,
+      supplier: '',
+mobile: '',
+manufacturer: '',
+location: '',
+notes: '',
+      batches: [],
+    };
+  }
+
+  function loadItemList() {
+    const existing = new Set(items.map(it => String(it.name || '').trim().toLowerCase()));
+    const toAdd = PRESET_ITEMS
+      .filter(([n]) => !existing.has(n.trim().toLowerCase()))
+      .map(([n, c]) => blankItem(n, c));
+    if (!toAdd.length) {
+      alert('All preset items are already in the inventory.');
+      return;
+    }
+    if (items.length && !confirm(`Add ${toAdd.length} new preset reagents to your inventory?`)) return;
+    items = items.concat(toAdd);
+    save(); render();
+  }
+
+  // ---------- Event wiring ----------
+  document.getElementById('addBtn').addEventListener('click', () => openItemModal(null));
+ ['search', 'categoryFilter', 'subcategoryFilter', 'statusFilter', 'viewMode',
+ 'dateField', 'dateFrom', 'dateTo'].forEach(id => {
+    document.getElementById(id).addEventListener('input', render);
+    document.getElementById(id).addEventListener('change', render);
+  });
+  document.getElementById('dateClearBtn').addEventListener('click', () => {
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value = '';
+    render();
+  });
+
+  document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+  document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
+  document.getElementById('importJsonInput').addEventListener('change', e => {
+    if (e.target.files[0]) { importJson(e.target.files[0]); e.target.value = ''; }
+  });
+  document.getElementById('loadListBtn').addEventListener('click', loadItemList);
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (!items.length) return;
+    if (confirm('Delete ALL reagents and batches? This cannot be undone.')) {
+      items = []; save(); render();
+    }
+  });
+
+  // Inventory date + print meta
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+  function formatDisplayDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  function formatDisplayDateTime(d) {
+    return d.toLocaleString(undefined, {
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
+  const invDateInput = document.getElementById('inventoryDate');
+  invDateInput.value = localStorage.getItem(INV_DATE_KEY) || todayISO();
+  invDateInput.addEventListener('change', () => {
+    localStorage.setItem(INV_DATE_KEY, invDateInput.value || '');
+  });
+  function updatePrintMeta() {
+    const iso = invDateInput.value || todayISO();
+    document.getElementById('printInvDate').textContent = formatDisplayDate(iso);
+    document.getElementById('printDateTime').textContent = formatDisplayDateTime(new Date());
+  }
+  window.addEventListener('beforeprint', updatePrintMeta);
+  document.getElementById('printBtn').addEventListener('click', () => {
+    updatePrintMeta();
+    window.print();
+  });
+
+  // ---------- Init ----------
+  load();
+  if (!items.length && !localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(OLD_STORAGE_KEY)) {
+    items = PRESET_ITEMS.map(([n, c]) => blankItem(n, c));
+    save();
+  }
+  render();
+})();
+</script>
+
+</body>
+</html>

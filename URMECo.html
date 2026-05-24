@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urine R/M/E Color Chart</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background: #f4f6f8;
+        padding: 10px;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        font-size: 20px;
+        text-align: center;
+        color: #333;
+    }
+
+    .desc {
+        text-align: center;
+        color: #666;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    /* GRID */
+    .color-box {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .box {
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 8px;
+        text-align: center;
+        padding: 5px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .box:active {
+        transform: scale(0.95);
+    }
+
+    /* COLORS */
+    .pale { background: #fff9c4; }
+    .light { background: #fff176; }
+    .yellowish { background: #ffeb3b; }
+    .dark { background: #fbc02d; }
+    .orange { background: #fb8c00; color: #fff; }
+    .reddish { background: #e53935; color: #fff; }
+    .brownish { background: #6d4c41; color: #fff; }
+    .amber { background: #ffbf00; }
+    .colorless { background: #f5f5f5; }
+    .greenish { background: #66bb6a; color: #fff; }
+    .milky { background: #eeeeee; }
+
+    /* RESULT BOX */
+    .result {
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 8px;
+        background: #e3f2fd;
+        font-size: 13px;
+        display: none;
+        text-align: center;
+    }
+
+    /* TABLE (scrollable on mobile) */
+    .table-wrapper {
+        overflow-x: auto;
+        margin-top: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 500px;
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ccc;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+    }
+
+    /* FOOTER */
+    .footer {
+        margin-top: 10px;
+        padding-top: 5px;
+        border-top: 1px solid #ccc;
+        font-size: 10px;
+        text-align: center;
+        color: #555;
+        line-height: 1.3;
+    }
+
+    /* SMALL DEVICES */
+    @media (max-width: 480px) {
+        h1 { font-size: 18px; }
+        .box { font-size: 11px; height: 60px; }
+    }
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Urine R/M/E Color</h1>
+    <p class="desc">Tap a color to see meaning</p>
+
+    <div class="color-box">
+        <div class="box pale" data-meaning="Normal, well hydrated">Pale Yellow</div>
+        <div class="box light" data-meaning="Normal">Light Yellow</div>
+        <div class="box yellowish" data-meaning="Normal">Yellowish</div>
+        <div class="box dark" data-meaning="Dehydration">Dark Yellow</div>
+        <div class="box orange" data-meaning="Vitamins or liver issue">Orange</div>
+        <div class="box reddish" data-meaning="Blood or food">Reddish</div>
+        <div class="box brownish" data-meaning="Liver disease / old blood">Brownish</div>
+        <div class="box amber" data-meaning="Concentrated urine">Amber</div>
+        <div class="box colorless" data-meaning="Excess hydration">Colorless</div>
+        <div class="box greenish" data-meaning="Infection / medication">Greenish</div>
+        <div class="box milky" data-meaning="Pus / fat / infection">Milky</div>
+    </div>
+
+    <div id="result" class="result"></div>
+
+    <div class="table-wrapper">
+        <table>
+            <tr><th>Color</th><th>Appearance</th><th>Meaning</th></tr>
+            <tr><td>Pale Yellow</td><td>Clear</td><td>Normal, well hydrated</td></tr>
+            <tr><td>Light Yellow</td><td>Clear</td><td>Normal</td></tr>
+            <tr><td>Yellowish</td><td>Clear</td><td>Normal</td></tr>
+            <tr><td>Dark Yellow</td><td>Slightly Cloudy</td><td>Dehydration</td></tr>
+            <tr><td>Orange</td><td>Clear / Slightly Cloudy</td><td>Vitamins or liver issue</td></tr>
+            <tr><td>Reddish</td><td>Cloudy</td><td>Blood or food</td></tr>
+            <tr><td>Brownish</td><td>Turbid</td><td>Liver disease or old blood</td></tr>
+            <tr><td>Amber</td><td>Clear</td><td>Concentrated urine</td></tr>
+            <tr><td>Colorless</td><td>Clear</td><td>Excess hydration</td></tr>
+            <tr><td>Greenish</td><td>Cloudy</td><td>Infection or medication</td></tr>
+            <tr><td>Milky</td><td>Turbid</td><td>Pus, fat, or infection</td></tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Developed by MD MAMUN MIAH (Medical Technologist)<br>
+        Mob: 01854000045 | Email: md.mamun8@gmail.com
+    </div>
+
+</div>
+
+<script>
+    const boxes = document.querySelectorAll('.box');
+    const result = document.getElementById('result');
+
+    boxes.forEach(box => {
+        box.addEventListener('click', () => {
+            result.style.display = 'block';
+            result.innerHTML =
+                "<strong>" + box.textContent + ":</strong> " +
+                box.getAttribute('data-meaning');
+        });
+    });
+</script>
+
+</body>
+</html>

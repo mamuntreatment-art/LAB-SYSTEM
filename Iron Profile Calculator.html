@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iron Profile Calculator</title>
+
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        background:#f4f7fb;
+        display:flex;
+        flex-direction: column;
+        justify-content:center;
+        align-items:center;
+        min-height:100vh;
+        margin:0;
+        padding: 20px 0;
+    }
+
+    .container{
+        background:#fff;
+        padding:25px;
+        width:400px;
+        border-radius:12px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    }
+
+    h2{
+        text-align:center;
+        color:#1565c0;
+        margin-bottom:20px;
+        margin-top: 0;
+    }
+
+    .input-group{
+        margin-bottom:15px;
+    }
+
+    label{
+        display:block;
+        margin-bottom:6px;
+        font-weight:bold;
+    }
+
+    input{
+        width:100%;
+        padding:10px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+        box-sizing: border-box;
+    }
+
+    button{
+        width:100%;
+        padding:12px;
+        border:none;
+        background:#1565c0;
+        color:white;
+        font-size:16px;
+        border-radius:8px;
+        cursor:pointer;
+    }
+
+    button:hover{
+        background:#0d47a1;
+    }
+
+    .result{
+        margin-top:20px;
+        background:#eef4ff;
+        padding:15px;
+        border-radius:10px;
+        display:none;
+    }
+
+    .result p{
+        margin:8px 0;
+        font-size:15px;
+    }
+
+    /* Styles for the new information block in the body */
+    .info-container {
+        background: #fff;
+        padding: 25px;
+        width: 400px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-top: 20px;
+        box-sizing: border-box;
+    }
+
+    .info-container p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+        margin: 12px 0;
+    }
+
+    .info-heading {
+        font-size: 16px;
+        font-weight: bold;
+        color: #1565c0;
+        margin-top: 20px;
+        margin-bottom: 8px;
+    }
+
+    .patient-tip {
+        background: #fff9e6;
+        border-left: 4px solid #ffb300;
+        padding: 12px;
+        margin-top: 20px;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- Developer info -->
+<div class="dev-bar">
+  <strong>App Developer:</strong> MD MAMUN MIAH
+  <span>|</span> Medical Technologist
+  <span>|</span> Mob: <a href="tel:+8801854000045">01854000045</a>
+  <span>|</span> Email: <a href="mailto:md.mamun8@gmail.com">md.mamun8@gmail.com</a>
+</div>
+
+
+
+<div class="container">
+
+    <h2>Iron Profile Calculator</h2>
+
+    <div class="input-group">
+        <label>Serum Iron</label>
+        <input type="number" id="serumIron" placeholder="Enter Serum Iron">
+    </div>
+
+    <div class="input-group">
+        <label>TIBC (Sample OD)</label>
+        <input type="number" id="sampleOD" placeholder="Enter Sample OD">
+    </div>
+
+    <div class="input-group">
+        <label>Ferritin</label>
+        <input type="number" id="ferritin" placeholder="Enter Ferritin">
+    </div>
+
+    <button onclick="calculateProfile()">Calculate</button>
+
+    <div class="result" id="resultBox">
+
+        <p><strong>Serum Iron = </strong>
+            <span id="serumIronResult"></span>
+        </p>
+
+        <p><strong>TIBC = </strong>
+            <span id="tibcResult"></span>
+        </p>
+
+        <p><strong>UIBC = </strong>
+            <span id="uibcResult"></span>
+        </p>
+
+        <p><strong>Transferrin Saturation % = </strong>
+            <span id="tsatResult"></span>
+        </p>
+
+        <p><strong>Ferritin = </strong>
+            <span id="ferritinResult"></span>
+        </p>
+
+    </div>
+
+</div>
+
+<div class="info-container">
+
+    <p>Formula: TIBC = Serum Iron + UIBC</p>
+    <p>Formula: UIBC = TIBC - Serum Iron </p>
+    <p>Formula: Transferrin Saturation (TSAT) % = (Serum Iron / TIBC) × 100</p>
+
+    <p>An Iron Profile (also known as an Iron Panel or Iron Status Test) is a group of blood tests used to evaluate how much iron is in your body and how well it is being transported.</p>
+    
+    <p>Here is the standard breakdown of the test names included in a complete Iron Profile:</p>
+    
+    <div class="info-heading">Standard Iron Profile Components</div>
+    
+    <p><strong>Serum Iron:</strong> Measures the actual amount of iron circulating in your blood liquid (serum).</p>
+    
+    <p><strong>Serum Ferritin:</strong> Measures the amount of stored iron in your body. This is often the most critical marker for detecting early iron deficiency.</p>
+    
+    <p><strong>Total Iron-Binding Capacity (TIBC):</strong> Measures how well proteins (specifically transferrin) can bind and carry iron through your blood.</p>
+    
+    <p><strong>Transferrin Saturation (TSAT):</strong> This is a calculated percentage ((Serum Iron ÷ TIBC) × 100) that shows how many of your iron-binding sites are actually carrying iron.</p>
+    
+    <div class="info-heading">Additional Related Tests (Often ordered together)</div>
+    
+    <p>Depending on the lab or your doctor's requirements, an Iron Profile is frequently paired with:</p>
+    
+    <p><strong>CBC (Complete Blood Count):</strong> Specifically looking at Hemoglobin (Hb), Packed Cell Volume (PCV/Hematocrit), and MCV/MCH to see if the iron levels have started affecting your red blood cells (causing anemia).</p>
+    
+    <p><strong>Transferrin:</strong> The actual measurement of the protein that binds iron (sometimes ordered instead of or alongside TIBC).</p>
+    
+    <div class="patient-tip">
+        <strong>Tip for Patients:</strong> For the most accurate results, an Iron Profile usually requires 8 to 12 hours of fasting (no food or drink except water) before the blood draw, and it is ideally done in the morning.
+    </div>
+</div>
+
+<script>
+
+function calculateProfile(){
+
+    let serumIron = parseFloat(document.getElementById("serumIron").value);
+    let sampleOD = parseFloat(document.getElementById("sampleOD").value);
+    let ferritin = parseFloat(document.getElementById("ferritin").value);
+
+    if(isNaN(serumIron) || isNaN(sampleOD) || isNaN(ferritin)){
+        alert("Please enter all values.");
+        return;
+    }
+
+    // Calculations
+    let tibc = sampleOD * 3;
+    let uibc = tibc - serumIron;
+    let tsat = (serumIron / tibc) * 100;
+
+    // Output
+    document.getElementById("serumIronResult").innerText = serumIron.toFixed(2);
+    document.getElementById("tibcResult").innerText = tibc.toFixed(2);
+    document.getElementById("uibcResult").innerText = uibc.toFixed(2);
+    document.getElementById("tsatResult").innerText = tsat.toFixed(2) + "%";
+    document.getElementById("ferritinResult").innerText = ferritin.toFixed(2);
+
+    document.getElementById("resultBox").style.display = "block";
+}
+
+</script>
+
+</body>
+</html>

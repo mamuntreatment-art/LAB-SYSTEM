@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lipid Profile Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: Arial; background:#f4f7fb; padding:10px;}
+.container { max-width:700px; margin:auto; background:white; padding:20px; border-radius:12px;}
+h2 { text-align:center; }
+input, select, button { width:100%; padding:10px; margin:5px 0; border-radius:8px; border:1px solid #ccc;}
+button { background:#007bff; color:white; cursor:pointer;}
+button:hover { background:#0056b3;}
+.result, .history, .note, .developer { margin-top:15px; padding:10px; border-radius:8px;}
+.result { background:#eef; }
+.history { background:#f1f1f1; }
+.note { background:#fff3cd; border-left:5px solid #ffc107;}
+.developer { background:#d1ecf1; border-left:5px solid #17a2b8;}
+canvas { margin-top:20px; }
+@media print { button, canvas, .history { display:none; }}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>🧾 Lipid Profile Calculator</h2>
+
+<input id="name" placeholder="Patient Name (optional)">
+<input id="pid" placeholder="Patient ID (optional)">
+<input id="age" type="number" placeholder="Age (optional)">
+<select id="sex">
+<option value="">Sex (optional)</option>
+<option value="M">Male</option>
+<option value="F">Female</option>
+</select>
+
+<label>Total Cholesterol (TC)</label>
+<input id="tc" type="number">
+<label>HDL</label>
+<input id="hdl" type="number">
+<label>Triglycerides (TG)</label>
+<input id="tg" type="number">
+<label>Unit</label>
+<select id="unit">
+<option value="mg">mg/dL</option>
+<option value="mmol">mmol/L</option>
+</select>
+
+<button onclick="calculate()">Calculate</button>
+<button onclick="saveData()">💾 Save Test</button>
+<button onclick="downloadPDF()">📄 Download Report</button>
+
+<div id="output" class="result"></div>
+<canvas id="chart"></canvas>
+
+<div class="history">
+<h3>Saved History (Last 10)</h3>
+<ul id="historyList"></ul>
+</div>
+
+<div class="note">
+<strong>⚠️ Notes</strong><br>
+LDL = TC - HDL - (TG / 5)<br>
+❌ Not valid if TG > 400 mg/dL<br>
+✔️ Widely used for estimation, not exact measurement
+</div>
+
+<div class="developer">
+<strong>👨‍⚕️ Developer Information</strong><br>
+MD MAMUN MIAH<br>
+Medical Technologist (Lab)<br>
+📞 Mobile: 01854000045<br>
+✉️ Email: md.mamun8@gmail.com
+</div>
+</div>
+
+<script>
+function toMg(v,u,t){ return u==='mmol'? (t==='tg'?v*88.57:v*38.67) : v; }
+function fromMg(v,u,t){ return u==='mmol'? (t==='tg'?v/88.57:v/38.67) : v; }
+function risk(ldl){ if(ldl<100)return'Normal'; if(ldl<160)return'High'; return'Critical'; }
+function ratioRisk(r){ if(r<3.5)return'Good'; if(r<5)return'Moderate'; return'High Risk'; }
+function now(){ return new Date().toLocaleString(); }
+
+let chart;
+function calculate(){
+    let name=nameEl.value||"";
+    let pid=pidEl.value||"";
+    let age=ageEl.value||"";
+    let sex=sexEl.value||"";
+
+    let tc=parseFloat(tcEl.value);
+    let hdl=parseFloat(hdlEl.value);
+    let tg=parseFloat(tgEl.value);
+    let unit=unitEl.value;
+
+    if(!tc || !hdl || !tg){ alert('Fill TC, HDL, and TG'); return; }
+
+    let tc_mg=toMg(tc,unit,'chol');
+    let hdl_mg=toMg(hdl,unit,'chol');
+    let tg_mg=toMg(tg,unit,'tg');
+
+    if(tg_mg>400){ output.innerHTML='⚠️ TG too high. LDL invalid.'; return; }
+
+    let ldl=tc_mg-hdl_mg-(tg_mg/5);
+    let ratio=tc_mg/hdl_mg;
+    let ldlFinal=fromMg(ldl,unit,'chol').toFixed(2);
+    let ratioFinal=ratio.toFixed(2);
+
+    output.innerHTML=`<b>Name:</b> ${name} <br>
+<b>Patient ID:</b> ${pid} <br>
+<b>Age/Sex:</b> ${age} ${sex} <br>
+<b>Date:</b> ${now()}<br>
+<b>LDL:</b> ${ldlFinal} ${unit} (<b>${risk(ldl)}</b>)<br>
+<b>Cholesterol/HDL Ratio:</b> ${ratioFinal} (<b>${ratioRisk(ratio)}</b>)`;
+
+    updateChart(ldlFinal);
+}
+
+function updateChart(val){
+    let history=getHistory();
+    let data=history.map(x=>parseFloat(x.ldl));
+    data.push(parseFloat(val));
+    if(chart) chart.destroy();
+    chart=new Chart(document.getElementById('chart'),{
+        type:'line',
+        data:{ labels:data.map((_,i)=>'Test '+(i+1)), datasets:[{label:'LDL Trend', data:data, borderColor:'blue', fill:false}] }
+    });
+}
+
+function saveData(){
+    let match=output.innerText.match(/LDL:\s([0-9.]+)/);
+    if(!match){ alert('Calculate first'); return; }
+
+    let record={
+        name:nameEl.value||"",
+        pid:pidEl.value||"",
+        ldl:match[1],
+        time:now()
+    };
+
+    let history=getHistory();
+    history.unshift(record);
+    history=history.slice(0,10);
+    localStorage.setItem('lipidHistory',JSON.stringify(history));
+    renderHistory();
+}
+
+function getHistory(){ return JSON.parse(localStorage.getItem('lipidHistory')||'[]'); }
+function renderHistory(){
+    historyList.innerHTML='';
+    getHistory().forEach(h=>{
+        let li=document.createElement('li');
+        li.textContent=`${h.name} (${h.pid}) - LDL: ${h.ldl} - ${h.time}`;
+        historyList.appendChild(li);
+    });
+}
+
+function downloadPDF(){ window.print(); }
+
+const nameEl=document.getElementById('name');
+const pidEl=document.getElementById('pid');
+const ageEl=document.getElementById('age');
+const sexEl=document.getElementById('sex');
+const tcEl=document.getElementById('tc');
+const hdlEl=document.getElementById('hdl');
+const tgEl=document.getElementById('tg');
+const unitEl=document.getElementById('unit');
+const output=document.getElementById('output');
+const historyList=document.getElementById('historyList');
+
+renderHistory();
+</script>
+</body>
+</html>

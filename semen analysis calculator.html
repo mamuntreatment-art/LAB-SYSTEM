@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Semen Analysis Calculator (Pro Version)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef3f9;
+            padding: 15px;
+        }
+
+        .box {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .result {
+            margin-top: 10px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .good {
+            color: green;
+        }
+
+        .mid {
+            color: orange;
+        }
+
+        .bad {
+            color: red;
+        }
+    </style>
+</head>
+
+<body><!-- ================= CONCENTRATION ================= -->
+    <div class="box">
+        <h3>🔬 Concentration + Total Sperm Count</h3><label>Average Sperm per HPF</label> <input type="number" id="hpf" placeholder="e.g. 25" oninput="calc()"> <label>Conversion Factor (Million/ml)</label> <input type="number" id="factor" value="1" step="0.1" oninput="calc()"> <label>Sample Volume (ml)</label> <input type="number" id="volume" placeholder="e.g. 3" oninput="calc()">
+        <div class="result" id="concRes">Enter values</div>
+        <div class="result" id="totalSpermRes">Enter values</div>
+    </div><!-- ================= QUICK MOTILITY ================= -->
+    <div class="box">
+        <h3>⚡ Total Motility Calculator (Quick)</h3><label>Motile Sperm Count</label> <input type="number" id="quickMotile" placeholder="e.g. 40" oninput="calc()"> <label>Total Sperm Count</label> <input type="number" id="quickTotal" placeholder="e.g. 100" oninput="calc()">
+        <div class="result" id="quickMotRes">Enter values</div>
+    </div><!-- ================= DETAILED MOTILITY ================= -->
+    <div class="box">
+        <h3>🏃 Motility Analysis (Detailed)</h3><label>Actively Motile (Progressive)</label> <input type="number" id="active" placeholder="e.g. 40" oninput="calc()"> <label>Feeble Motile (Non-progressive)</label> <input type="number" id="feeble" placeholder="e.g. 20" oninput="calc()"> <label>Non-Motile</label> <input type="number" id="nonmotile" placeholder="e.g. 40" oninput="calc()">
+        <div class="result" id="motRes">Enter values</div>
+    </div><!-- ================= MORPHOLOGY ================= -->
+    <div class="box">
+        <h3>🧬 Morphology (Normal Forms %)</h3><label>Normal Forms</label> <input type="number" id="normal" placeholder="e.g. 5" oninput="calc()"> <label>Total Counted</label> <input type="number" id="totalMorph" placeholder="e.g. 100" oninput="calc()">
+        <div class="result" id="morphRes">Enter values</div>
+        <p style="text-align: center;"><br></p>
+        <p style="text-align: center;">--------------------*****------------------******-------------------------</p>
+        <p style="text-align: center;">---------------------*****----------------------*****-----------------------------</p>
+        <p style="text-align: center;"><strong><span style="color: rgb(0, 168, 133);"><u>SEMEN ANALYSIS FORMOLA</u></span></strong></p>
+        <h1><span style="font-size: 26px;">🧮 ১. Morphology (%</span>)</h1>
+        <p>👉 এটা ল্যাবের মূল হিসাব</p>
+        <p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block">&nbsp;<semantics>&nbsp;<mrow>&nbsp;<mtext>Morphology&nbsp;(%)</mtext>
+                        <mo>=</mo>
+                        <mrow>&nbsp;<mo fence="true">(</mo>
+                            <mfrac>&nbsp;<mtext>Normal&nbsp;Forms</mtext>
+                                <mtext>Total&nbsp;Counted</mtext>&nbsp;
+                            </mfrac>
+                            <mo fence="true">)</mo>&nbsp;
+                        </mrow>
+                        <mo>&times;</mo>
+                        <mn>100</mn>&nbsp;
+                    </mrow>&nbsp;</semantics>&nbsp;</math></p>
+        <p>📌 উদাহরণ<br>Normal Forms = 10, Total counted = 200<br>➡️ (10 &divide; 200) &times; 100 = <strong>5%</strong></p>
+        <p><strong>----------------------------------------------------------------------------------------------</strong></p>
+        <h1><span style="font-size: 26px;">🧮 ২. Direct Formula (এক ধাপে)</span></h1>
+        <p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block">&nbsp;<semantics>&nbsp;<mrow>&nbsp;<mtext>Normal&nbsp;Sperm</mtext>
+                        <mo>=</mo>
+                        <mrow>&nbsp;<mo fence="true">(</mo>
+                            <mfrac>&nbsp;<mtext>Normal&nbsp;Forms</mtext>
+                                <mtext>Total&nbsp;Counted</mtext>&nbsp;
+                            </mfrac>
+                            <mo fence="true">)</mo>&nbsp;
+                        </mrow>
+                        <mo>&times;</mo>
+                        <mtext>Total&nbsp;Concentration</mtext>&nbsp;
+                    </mrow>&nbsp;</semantics>&nbsp;</math></p>
+        <p>Normal Sperm=(&nbsp;Normal Forms / Total Counted&nbsp;)&times;Total Concentration</p>
+        <p><br></p>
+        <p>----------------------------------------------------------------------------------------------------</p>
+        <h1><span style="font-size: 26px;">৩. Motility Breakdown Formula</span></h1>
+        <p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block">&nbsp;<semantics>&nbsp;<mrow>&nbsp;<mtext>Total&nbsp;Motility</mtext>
+                        <mo>=</mo>
+                        <mtext>Actively&nbsp;Motile</mtext>
+                        <mo>+</mo>
+                        <mtext>Feeble&nbsp;Motile</mtext>&nbsp;
+                    </mrow>&nbsp;</semantics>&nbsp;</math><math xmlns="http://www.w3.org/1998/Math/MathML" display="block">&nbsp;<semantics>&nbsp;<mrow>&nbsp;<mtext>Total</mtext>
+                        <mo>=</mo>
+                        <mtext>Actively</mtext>
+                        <mo>+</mo>
+                        <mtext>Feeble</mtext>
+                        <mo>+</mo>
+                        <mtext>Non-Motile</mtext>&nbsp;
+                    </mrow>&nbsp;</semantics>&nbsp;</math></p>
+        <p>📌 উদাহরণ<br>Actively = 40%<br>Feeble = 20%<br>Non-motile = 40%</p>
+        <p>➡️ Total Motility = <strong>60%</strong></p>
+        <p><strong>-----------------------------------------------------------------------------------------------</strong></p>
+        <p><strong>Semen Volume:</strong> ___ ml</p>
+        <p><strong>Total Sperm Concentration:</strong> ___ million/ml</p>
+        <p><strong>Morphology:</strong> ___ %</p>
+        <p><strong>Motility:</strong> ___ %</p>
+        <ul>
+            <li>Actively Motile: ___ %</li>
+            <li>Feeble Motile: ___ %</li>
+            <li>Non-Motile: ___ %</li>
+        </ul>
+        <p><strong>Normal Sperm (million/ml):</strong> ___</p>
+        <p><strong>------------------------------------------------------------------------------------------------</strong></p>
+        <h1><span style="font-size: 26px;">(WHO guideline based)</span></h1>
+        <ul>
+            <li>Morphology &ge; <strong>4%</strong> &rarr; ✔️ Acceptable</li>
+            <li>Total Motility &ge; <strong>40%</strong> &rarr; ✔️ Normal</li>
+            <li>Concentration &ge; <strong>15 million/ml</strong> &rarr; ✔️ Normal</li>
+        </ul>
+        <p>Concentration = মোট সংখ্যা&nbsp;</p>
+        <p>Motility = চলার ক্ষমতা&nbsp;</p>
+        <p>Morphology = গঠনের গুণমান</p>
+        <p><strong>--------------------------------------------------------------------------------------------------------</strong></p>
+        <p><br style="text-align: start;color: rgb(0, 0, 0);background-color: rgb(238, 243, 249);font-size: medium;font-family: Arial, sans-serif;"></p>
+        <p><br></p>
+        <p><br></p>
+        <p><br></p>
+        <p><br></p>
+        <p><br></p>
+        <p><br></p>
+    </div>
+    <script>
+        function calc() {
+        
+          // =========================
+          // CONCENTRATION + TOTAL COUNT
+          // =========================
+          let hpf = parseFloat(document.getElementById("hpf").value);
+          let factor = parseFloat(document.getElementById("factor").value);
+          let volume = parseFloat(document.getElementById("volume").value);
+        
+          if (!isNaN(hpf) && !isNaN(factor)) {
+        
+            let conc = hpf * factor;
+        
+            let status =
+              conc >= 15 ? "Normal" :
+              conc >= 5 ? "Low" : "Very Low";
+        
+            document.getElementById("concRes").innerHTML =
+              "Concentration: " + conc.toFixed(2) + " million/ml<br>" +
+              "<span class='" +
+              (status === "Normal" ? "good" : status === "Low" ? "mid" : "bad") +
+              "'>" + status + "</span>";
+        
+            // TOTAL SPERM COUNT
+            if (!isNaN(volume) && volume > 0) {
+        
+              let totalSperm = conc * volume;
+        
+              let tStatus =
+                totalSperm >= 39 ? "Normal" :
+                totalSperm >= 10 ? "Borderline" : "Low";
+        
+              document.getElementById("totalSpermRes").innerHTML =
+                "Total Sperm Count: " + totalSperm.toFixed(2) + " million<br>" +
+                "<span class='" +
+                (tStatus === "Normal" ? "good" : tStatus === "Borderline" ? "mid" : "bad") +
+                "'>" + tStatus + "</span>";
+        
+            } else {
+              document.getElementById("totalSpermRes").innerHTML =
+                "Enter sample volume to calculate total sperm count";
+            }
+        
+          } else {
+            document.getElementById("concRes").innerHTML = "Enter valid values";
+            document.getElementById("totalSpermRes").innerHTML = "";
+          }
+        
+        
+          // =========================
+          // QUICK MOTILITY
+          // =========================
+          let qMotile = parseFloat(document.getElementById("quickMotile").value);
+          let qTotal = parseFloat(document.getElementById("quickTotal").value);
+        
+          if (!isNaN(qMotile) && !isNaN(qTotal)) {
+        
+            if (qTotal > 0) {
+        
+              let quickMotility = (qMotile / qTotal) * 100;
+        
+              let status =
+                quickMotility >= 40 ? "Normal" :
+                quickMotility >= 20 ? "Borderline" : "Low";
+        
+              document.getElementById("quickMotRes").innerHTML =
+                "Total Motility: " + quickMotility.toFixed(2) + "%<br>" +
+                "<span class='" +
+                (status === "Normal" ? "good" : status === "Borderline" ? "mid" : "bad") +
+                "'>" + status + "</span>";
+        
+            } else {
+              document.getElementById("quickMotRes").innerHTML = "Total must be > 0";
+            }
+        
+          } else {
+            document.getElementById("quickMotRes").innerHTML = "Enter valid values";
+          }
+        
+        
+          // =========================
+          // DETAILED MOTILITY
+          // =========================
+          let active = parseFloat(document.getElementById("active").value);
+          let feeble = parseFloat(document.getElementById("feeble").value);
+          let nonmotile = parseFloat(document.getElementById("nonmotile").value);
+        
+          if (!isNaN(active) && !isNaN(feeble) && !isNaN(nonmotile)) {
+        
+            let total = active + feeble + nonmotile;
+        
+            if (total > 0) {
+        
+              let progressive = (active / total) * 100;
+              let nonProgressive = (feeble / total) * 100;
+              let immotile = (nonmotile / total) * 100;
+        
+              let totalMotility = progressive + nonProgressive;
+        
+              let status =
+                totalMotility >= 40 ? "Normal" :
+                totalMotility >= 20 ? "Borderline" : "Low";
+        
+              document.getElementById("motRes").innerHTML =
+                "Progressive: " + progressive.toFixed(2) + "%<br>" +
+                "Non-progressive: " + nonProgressive.toFixed(2) + "%<br>" +
+                "Immotile: " + immotile.toFixed(2) + "%<br><br>" +
+                "Total Motility: " + totalMotility.toFixed(2) + "%<br>" +
+                "<span class='" +
+                (status === "Normal" ? "good" : status === "Borderline" ? "mid" : "bad") +
+                "'>" + status + "</span>";
+        
+            } else {
+              document.getElementById("motRes").innerHTML = "Total must be > 0";
+            }
+        
+          } else {
+            document.getElementById("motRes").innerHTML = "Enter valid values";
+          }
+        
+        
+          // =========================
+          // MORPHOLOGY
+          // =========================
+          let normal = parseFloat(document.getElementById("normal").value);
+          let totalMorph = parseFloat(document.getElementById("totalMorph").value);
+        
+          if (!isNaN(normal) && !isNaN(totalMorph)) {
+        
+            if (totalMorph > 0) {
+        
+              let morph = (normal / totalMorph) * 100;
+        
+              let morphStatus =
+                morph >= 4 ? "Normal" :
+                morph >= 2 ? "Borderline" : "Abnormal";
+        
+              document.getElementById("morphRes").innerHTML =
+                "Morphology: " + morph.toFixed(2) + "%<br>" +
+                "<span class='" +
+                (morphStatus === "Normal" ? "good" : morphStatus === "Borderline" ? "mid" : "bad") +
+                "'>" + morphStatus + "</span>";
+        
+            } else {
+              document.getElementById("morphRes").innerHTML = "Total must be > 0";
+            }
+        
+          } else {
+            document.getElementById("morphRes").innerHTML = "Enter valid values";
+          }
+        
+        }
+    </script>
+</body>
+
+</html>

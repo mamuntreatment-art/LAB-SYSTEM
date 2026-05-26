@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PBF Morphology Report System</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 20px;
+    background: #eef2f7;
+}
+
+.section {
+    background: white;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.note {
+    color: red;
+    font-size: 13px;
+}
+
+/* FOOTER */
+.footer {
+    background: #1f2937;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.3;
+}
+
+.footer h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    padding-bottom: 4px;
+}
+
+.footer p {
+    margin: 2px 0;
+}
+</style>
+</head>
+
+<body>
+
+<h2>PBF Morphology Report System</h2>
+
+<p class="note">Educational tool only. Not for clinical diagnosis.</p>
+
+<!-- RBC -->
+<div class="section">
+<h3>RBC Morphology</h3>
+
+<label>Size</label>
+<select id="rbcSize">
+    <option>Normal</option>
+    <option>Microcytic</option>
+    <option>Macrocytic</option>
+    <option>Anisocytosis</option>
+</select>
+
+<label>Color (Chromia)</label>
+<select id="rbcColor">
+    <option>Normochromic</option>
+    <option>Hypochromic</option>
+    <option>Hyperchromic</option>
+    <option>Polychromasia</option>
+    <option>Anisochromia</option>
+</select>
+
+<label>Shape</label>
+<select id="rbcShape">
+    <option>Normal</option>
+    <option>Poikilocytosis</option>
+    <option>Spherocytes</option>
+    <option>Sickle Cells</option>
+    <option>Target Cells</option>
+    <option>Elliptocytes / Ovalocytes</option>
+    <option>Schistocytes</option>
+    <option>Teardrop Cells (Dacrocytes)</option>
+    <option>Acanthocytes (Spur cells)</option>
+    <option>Echinocytes (Burr cells)</option>
+    <option>Stomatocytes</option>
+</select>
+
+<label>Inclusion</label>
+<select id="rbcInc">
+    <option>None</option>
+    <option>Howell-Jolly Bodies</option>
+    <option>Basophilic Stippling</option>
+    <option>Pappenheimer Bodies</option>
+</select>
+</div>
+
+<!-- WBC -->
+<div class="section">
+<h3>WBC</h3>
+
+<label>Total Count</label>
+<input type="number" id="wbcCount">
+
+<label>WBC Morphology</label>
+<select id="wbcMorph">
+    <option>Normal</option>
+    <option>Leukocytosis</option>
+    <option>Leukopenia</option>
+    <option>Neutrophilia</option>
+    <option>Neutropenia</option>
+    <option>Lymphocytosis</option>
+    <option>Lymphopenia</option>
+    <option>Eosinophilia</option>
+    <option>Basophilia</option>
+    <option>Monocytosis</option>
+    <option>Blasts Present</option>
+    <option>Immature Granulocytes Increased</option>
+    <option>Left Shift (Band Cells Increased)</option>
+    <option>Toxic Granulation</option>
+    <option>Dohle Bodies Present</option>
+    <option>Vacuolation in Neutrophils</option>
+    <option>Hypogranular Neutrophils</option>
+    <option>Hypersegmented Neutrophils</option>
+    <option>Atypical Lymphocytes Present</option>
+    <option>Reactive Lymphocytosis</option>
+    <option>Leukemoid Reaction</option>
+</select>
+</div>
+
+<!-- Platelet -->
+<div class="section">
+<h3>Platelet</h3>
+
+<label>Total Count</label>
+<input type="number" id="pltCount">
+
+<label>Platelet Morphology</label>
+<select id="pltMorph">
+    <option>Normal</option>
+    <option>Thrombocytopenia</option>
+    <option>Thrombocytosis</option>
+    <option>Large Platelets (Macrothrombocytes)</option>
+    <option>Giant Platelets</option>
+    <option>Small Platelets</option>
+    <option>Platelet Clumping</option>
+    <option>Platelet Satellitism</option>
+</select>
+</div>
+
+<!-- CBC -->
+<div class="section">
+<h3>CBC Values</h3>
+
+<label>Hemoglobin (Hb)</label>
+<input type="number" id="hb">
+
+<label>MCV</label>
+<input type="number" id="mcv">
+
+<label>MCH</label>
+<input type="number" id="mch">
+
+<label>RDW</label>
+<input type="number" id="rdw">
+</div>
+
+<div class="section">
+<button onclick="generate()">Generate Report</button>
+
+<label>Auto Comments</label>
+<textarea id="comments"></textarea>
+
+<label>Diagnosis Suggestion</label>
+<textarea id="diagnosis"></textarea>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <h3>Apps Developer Information</h3>
+    <p>MD Mamun Miah</p>
+    <p>Medical Technologist</p>
+    <p>Mob: 01854000045</p>
+    <p>E-mail: md.mamun8@gmail.com</p>
+</footer>
+
+<script>
+function has(text) {
+    return document.getElementById("wbcMorph").value.includes(text);
+}
+
+function generate() {
+
+    let hb = parseFloat(document.getElementById("hb").value);
+    let mcv = parseFloat(document.getElementById("mcv").value);
+    let mch = parseFloat(document.getElementById("mch").value);
+    let rdw = parseFloat(document.getElementById("rdw").value);
+
+    let wbcCount = parseFloat(document.getElementById("wbcCount").value);
+    let pltCount = parseFloat(document.getElementById("pltCount").value);
+
+    let rbcSize = document.getElementById("rbcSize").value;
+    let rbcColor = document.getElementById("rbcColor").value;
+    let rbcShape = document.getElementById("rbcShape").value;
+    let rbcInc = document.getElementById("rbcInc").value;
+
+    let wbcMorph = document.getElementById("wbcMorph").value;
+    let pltMorph = document.getElementById("pltMorph").value;
+
+    if (isNaN(hb) || isNaN(mcv) || isNaN(mch) || isNaN(rdw)) {
+        alert("Please enter CBC values properly.");
+        return;
+    }
+
+    // WBC comment
+    let wbcComment = "";
+    if (wbcCount < 4000) wbcComment = "Decreased total count";
+    else if (wbcCount <= 11000) wbcComment = "Normal total count";
+    else wbcComment = "Increased total count";
+
+    // Platelet comment
+    let pltComment = "";
+    if (pltCount < 150000) pltComment = "Decreased total platelet count";
+    else if (pltCount <= 450000) pltComment = "Normal total platelet count";
+    else pltComment = "Increased total platelet count";
+
+    let comments =
+`RBC: ${rbcSize}, ${rbcColor}, ${rbcShape}, Inclusion: ${rbcInc}
+WBC: ${wbcCount || 0}/µL (${wbcComment}), Morphology: ${wbcMorph}
+Platelets: ${pltCount || 0}/µL (${pltComment}), Morphology: ${pltMorph}
+Hb: ${hb} g/dL, MCV: ${mcv} fL, MCH: ${mch} pg, RDW: ${rdw}%`;
+
+    let diag = [];
+
+    // RBC
+    if (hb < 11 && mcv < 80)
+        diag.push("Microcytic anemia pattern");
+    else if (hb < 11 && mcv > 100)
+        diag.push("Macrocytic anemia pattern");
+    else if (hb < 11)
+        diag.push("Normocytic anemia pattern");
+
+    if (rdw > 15)
+        diag.push("Increased RDW (anisocytosis)");
+
+    // MCH logic
+    if (mch < 27)
+        diag.push("Low MCH (hypochromia pattern)");
+
+    if (mch > 33)
+        diag.push("High MCH (macrocytic tendency)");
+
+    // WBC
+    if (wbcCount < 4000)
+        diag.push("WBC decreased (<4000/µL)");
+
+    if (wbcCount > 11000)
+        diag.push("WBC increased (>11000/µL)");
+
+    // Platelet
+    if (pltCount < 150000)
+        diag.push("Thrombocytopenia");
+
+    if (pltCount > 450000)
+        diag.push("Thrombocytosis");
+
+    if (diag.length === 0)
+        diag.push("No significant abnormality detected");
+
+    document.getElementById("comments").value = comments;
+    document.getElementById("diagnosis").value = diag.join("\n");
+}
+</script>
+
+</body>
+</html>

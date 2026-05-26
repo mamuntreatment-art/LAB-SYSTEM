@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urine Culture Organism Identification</title>
+
+<style>
+    /* Fixed Header এর জন্য বডিতে টপ মার্জিন দেওয়া হয়েছে */
+    body{
+        font-family: Arial, sans-serif;
+        background:#f4f7fb;
+        margin: 80px 20px 20px 20px; /* Top margin increased to fit header */
+        color:#222;
+    }
+
+    /* Fixed Header Style */
+    .fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #0b5394;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 1000;
+    }
+
+    .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .nav-menu {
+        list-style: none;
+        display: flex;
+        margin: 0;
+        padding: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-menu li {
+        margin: 5px 15px;
+    }
+
+    .nav-menu a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 14px;
+        transition: color 0.3s ease;
+    }
+
+    .nav-menu a:hover {
+        color: #ffca28; /* হোভার করলে সোনালী রঙ হবে */
+    }
+
+    /* Main Container */
+    .container{
+        background:#fff;
+        padding:25px;
+        border-radius:10px;
+        box-shadow:0 0 8px rgba(0,0,0,0.1);
+    }
+
+    h1{
+        text-align:center;
+        color:#0b5394;
+        margin-top: 10px;
+    }
+
+    h2{
+        color:#134f5c;
+        margin-top:30px;
+        border-bottom:2px solid #d9eaf7;
+        padding-bottom:5px;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-top:15px;
+    }
+
+    th, td{
+        border:1px solid #ccc;
+        padding:10px;
+        text-align:left;
+    }
+
+    th{
+        background:#d9eaf7;
+    }
+
+    tr:nth-child(even){
+        background:#f9f9f9;
+    }
+
+    .note{
+        background:#fff3cd;
+        border-left:5px solid #ffca28;
+        padding:12px;
+        margin-top:20px;
+    }
+
+    .positive{
+        color:green;
+        font-weight:bold;
+    }
+
+    .negative{
+        color:red;
+        font-weight:bold;
+    }
+</style>
+</head>
+
+<body>
+
+<header class="fixed-header">
+    <nav class="nav-container">
+        <ul class="nav-menu">
+            <li><a href="Blood Agar.html">Blood Agar</a></li>
+            <li><a href="MacConkey Agar.html">MacConkey Agar</a></li>
+            <li><a href="CLED Agar.html">CLED Agar</a></li>
+            <li><a href="Mueller-Hinton Agar.html">Mueller-Hinton Agar</a></li>
+            <li><a href="Biochemical Tests for Identification.html">Biochemical Tests for Identification</a></li>
+        </ul>
+    </nav>
+</header>
+<div class="container">
+
+<h1>Urine Culture Organism Identification</h1>
+
+<p>
+Urine culture এ সাধারণত CLED agar, Blood agar এবং MacConkey agar ব্যবহার করা হয়।
+এই media গুলোতে বিভিন্ন organism এর growth pattern দেখে organism identify করা হয়।
+</p>
+
+<h2>CLED Agar Growth</h2>
+
+<table>
+    <tr>
+        <th>Organism</th>
+        <th>Colony Appearance</th>
+        <th>Lactose Fermentation</th>
+    </tr>
+
+    <tr>
+        <td>Escherichia coli</td>
+        <td>Yellow colony</td>
+        <td class="positive">Positive</td>
+    </tr>
+
+    <tr>
+        <td>Klebsiella spp.</td>
+        <td>Large mucoid yellow colony</td>
+        <td class="positive">Positive</td>
+    </tr>
+
+    <tr>
+        <td>Proteus spp.</td>
+        <td>Pale blue colony</td>
+        <td class="negative">Negative</td>
+    </tr>
+
+    <tr>
+        <td>Pseudomonas aeruginosa</td>
+        <td>Greenish blue colony</td>
+        <td class="negative">Negative</td>
+    </tr>
+
+    <tr>
+        <td>Enterococcus spp.</td>
+        <td>Small yellow colony</td>
+        <td class="positive">Positive</td>
+    </tr>
+</table>
+
+<h2>Blood Agar Growth</h2>
+
+<table>
+    <tr>
+        <th>Organism</th>
+        <th>Hemolysis Pattern</th>
+        <th>Appearance</th>
+    </tr>
+
+    <tr>
+        <td>Staphylococcus aureus</td>
+        <td>Beta Hemolysis</td>
+        <td>Golden yellow colony</td>
+    </tr>
+
+    <tr>
+        <td>Streptococcus pyogenes</td>
+        <td>Beta Hemolysis</td>
+        <td>Small translucent colony</td>
+    </tr>
+
+    <tr>
+        <td>Enterococcus spp.</td>
+        <td>Gamma Hemolysis</td>
+        <td>Gray white colony</td>
+    </tr>
+
+    <tr>
+        <td>Escherichia coli</td>
+        <td>Sometimes Beta Hemolysis</td>
+        <td>Gray moist colony</td>
+    </tr>
+
+    <tr>
+        <td>Pseudomonas aeruginosa</td>
+        <td>Beta Hemolysis</td>
+        <td>Green pigment colony</td>
+    </tr>
+</table>
+
+<h2>MacConkey Agar Growth</h2>
+
+<table>
+    <tr>
+        <th>Organism</th>
+        <th>Colony Color</th>
+        <th>Lactose Fermentation</th>
+    </tr>
+
+    <tr>
+        <td>Escherichia coli</td>
+        <td>Bright pink colony</td>
+        <td class="positive">Positive</td>
+    </tr>
+
+    <tr>
+        <td>Klebsiella spp.</td>
+        <td>Mucoid pink colony</td>
+        <td class="positive">Positive</td>
+    </tr>
+
+    <tr>
+        <td>Enterobacter spp.</td>
+        <td>Pink moist colony</td>
+        <td class="positive">Positive</td>
+    </tr>
+
+    <tr>
+        <td>Proteus spp.</td>
+        <td>Colorless colony</td>
+        <td class="negative">Negative</td>
+    </tr>
+
+    <tr>
+        <td>Pseudomonas aeruginosa</td>
+        <td>Pale/colorless colony</td>
+        <td class="negative">Negative</td>
+    </tr>
+
+    <tr>
+        <td>Salmonella spp.</td>
+        <td>Colorless colony</td>
+        <td class="negative">Negative</td>
+    </tr>
+</table>
+
+<h2>Biochemical Tests for Identification</h2>
+
+<table>
+    <tr>
+        <th>Test</th>
+        <th>Purpose</th>
+        <th>Positive Organism</th>
+    </tr>
+
+    <tr>
+        <td>Gram Stain</td>
+        <td>Gram positive / negative identification</td>
+        <td>All bacteria</td>
+    </tr>
+
+    <tr>
+        <td>Catalase Test</td>
+        <td>Staphylococcus detection</td>
+        <td>Staphylococcus aureus</td>
+    </tr>
+
+    <tr>
+        <td>Coagulase Test</td>
+        <td>S. aureus confirmation</td>
+        <td>Staphylococcus aureus</td>
+    </tr>
+
+    <tr>
+        <td>Indole Test</td>
+        <td>E. coli identification</td>
+        <td>E. coli</td>
+    </tr>
+
+    <tr>
+        <td>Oxidase Test</td>
+        <td>Pseudomonas detection</td>
+        <td>Pseudomonas aeruginosa</td>
+    </tr>
+
+    <tr>
+        <td>Urease Test</td>
+        <td>Proteus detection</td>
+        <td>Proteus spp.</td>
+    </tr>
+
+    <tr>
+        <td>Citrate Test</td>
+        <td>Klebsiella differentiation</td>
+        <td>Klebsiella spp.</td>
+    </tr>
+
+    <tr>
+        <td>TSI Test</td>
+        <td>Sugar fermentation pattern</td>
+        <td>Enterobacteriaceae</td>
+    </tr>
+
+    <tr>
+        <td>Motility Test</td>
+        <td>Bacterial movement detect</td>
+        <td>Proteus spp.</td>
+    </tr>
+
+    <tr>
+        <td>Germ Tube Test</td>
+        <td>Candida albicans শনাক্ত</td>
+        <td>Candida albicans</td>
+    </tr>
+</table>
+
+<div class="note">
+<b>Note:</b> Final organism identification করার জন্য colony morphology, Gram stain,
+biochemical tests এবং antibiotic sensitivity pattern একসাথে evaluate করা হয়।
+</div>
+
+<div class="note">
+<b>Note:</b> Mueller-Hinton agar মূলত sensitivity testing এর জন্য standard media।
+Primary isolation এর জন্য সাধারণত CLED agar, Blood agar এবং MacConkey agar ব্যবহার করা হয়।
+</div>
+
+</div>
+
+</body>
+</html>
